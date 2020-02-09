@@ -53,7 +53,7 @@ brew 'ncdu' # Find where your diskspace went
 brew 'ffmpeg --with-libvpx'
 brew 'imagemagick --with-webp'
 
-#Install Mac App Store command-line interface
+#I nstall Mac App Store command-line interface
 brew 'mas' 
 
 # Install some CTF tools;
@@ -153,7 +153,7 @@ cask 'qlstephen'
 cask 'qlvideo'
 cask 'suspicious-package'
 
-#zsh
+# zsh
 zsh-autosuggestions
 zsh-completions
 zsh-syntax-highlighting
@@ -162,7 +162,7 @@ zsh-syntax-highlighting
 cask 'font-hack-nerd-font'
 
 # Mac App Store
-mas 'Flycut', id: 442160987 Flycut
+mas 'Flycut', id: 442160987
 mas 'YubiKey Personalization Tool', id: 638161122
 mas 'HashMaker', id: 509733654
 mas 'Microsoft Remote Desktop', id: 1295203466
