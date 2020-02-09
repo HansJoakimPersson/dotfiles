@@ -6,18 +6,11 @@ echo "Setting up your Mac..."
 cd "$(dirname "${BASH_SOURCE}")";
 git pull origin master;
 
-# Check for Homebrew and install if we don't have it
-if test ! $(which brew); then
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-fi
+# install packages from homebrew 
+#sh .brew
 
-# Update Homebrew recipes
-brew update
-
-# Install all our dependencies with bundle (See Brewfile)
-brew tap homebrew/bundle
-brew bundle
-
+# set up MacOS 
+#sh .macos
 
 function doIt() {
 	rsync --exclude ".git/" \

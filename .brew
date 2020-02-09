@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+
+# Check for Homebrew and install if we don't have it
+if test ! $(which brew); then
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
+
+# Make sure we’re using the latest Homebrew.
+brew update
+
+# Upgrade any already-installed formulae.
+brew upgrade
+
+# Save Homebrew’s installed location.
+BREW_PREFIX=$(brew --prefix)
+
+# Taps
+tap 'homebrew/cask'
+tap 'homebrew/cask-eid'
+tap 'homebrew/cask-fonts'
+tap 'homebrew/cask-versions'
+tap 'homebrew/bundle'
+
+# Install GNU core utilities (those that come with OS X are outdated)
+brew install'coreutils'
+brew install'moreutils'
+brew install'findutils' 
+brew install'gnu-sed --with-default-names'
+
+# Install a modern version of Bash.
+brew install'bash'
+brew install'bash-completion2'
+
+# Install wget with IRI support
+brew install'wget --with-iri'
+
+# Install more recent versions of some OS X tools
+brew install'vim --with-override-system-vi'
+brew install'nano'
+brew install'grep'
+brew install'openssh'
+brew install'screen'
+brew install'gmp'
+
+# Install other useful binaries
+brew install'the_silver_searcher'
+brew install'fzf'
+brew install'git'
+brew install'git-lfs'
+brew install'gnupg'
+brew install'hub'
+brew install'ghostscript' # Also known as 'sg'
+brew install'pipeviewer' # Also known as 'pv'
+brew install'rename'
+brew install'tree' # List directories in a tree structure
+brew install'zopfli'
+brew install'zlib' # Needed for Memcached
+brew install'p7zip'
+brew install'pigz'
+brew install'vbindiff'
+brew install'httpie'
+brew install'bat' # "cat" on steroids
+brew install'terminal-notifier'
+brew install'android-platform-tools'
+brew install'pidcat' # colored logcat guy
+brew install'ncdu' # Find where your diskspace went
+
+# Install multimedia tools
+brew install'ffmpeg --with-libvpx'
+brew install'imagemagick --with-webp'
+
+# Install Mac App Store command-line interface
+brew install'mas' 
+
+# Install some CTF tools;
+brew install'aircrack-ng'
+brew install'bfg'
+brew install'binutils'
+brew install'binwalk'
+brew install'cifer'
+brew install'dex2jar'
+brew install'dns2tcp'
+brew install'fcrackzip'
+brew install'foremost'
+brew install'hashpump'
+brew install'hydra'
+brew install'john'
+brew install'knock'
+brew install'netpbm'
+brew install'nmap'
+brew install'pngcheck'
+brew install'socat'
+brew install'sqlmap'
+brew install'tcpflow'
+brew install'tcpreplay'
+brew install'tcptrace'
+brew install'ucspi-tcp' # `tcpserver` etc.
+brew install'xpdf'
+brew install'xz'
+
+# Install some Forensic tools
+brew install'autopsy'
+brew install'dc3dd'
+brew install'volatility'
+
+# Install some Development tools
+#brew install'php'
+#brew install'php@7.3'
+#brew install'php@7.2'
+#brew install'composer'
+#brew install'imagemagick'
+#brew install'mysql'
+#brew install'nginx'
+#brew install'node'
+#brew install'redis'
+#brew install'yarn'
+
+# Apps
+brew cask install 'aerial'
+brew cask install 'adobe-creative-cloud'
+brew cask install 'adobe-acrobat-reader'
+brew cask install 'betterzip'
+brew cask install 'db-browser-for-sqlite'
+brew cask install 'dropbox'
+brew cask install 'discord'
+brew cask install 'disk-inventory-x'
+brew cask install 'docker'
+brew cask install 'easyfind'
+brew cask install 'filezilla'
+brew cask install 'fsmonitor'
+brew cask install 'ghidra'
+brew cask install 'github'
+brew cask install 'google-backup-and-sync'
+brew cask install 'gpg-suite'
+brew cask install 'hopper-disassembler'
+brew cask install 'insomnia'
+brew cask install 'java'
+brew cask install 'mysqlworkbench'
+brew cask install 'maltego'
+brew cask install 'microsoft-office'
+brew cask install 'skype'
+brew cask install 'slack'
+brew cask install 'transmission'
+brew cask install 'textwrangler'
+brew cask install 'vagrant'
+brew cask install 'viscosity'
+brew cask install 'vmware-fusion'
+brew cask install 'wireshark'
+brew cask install 'virtualbox' # Might need to allow access in Security settings
+brew cask install 'virtualbox-extension-pack'
+brew cask install 'vlc'
+brew cask install 'yed'
+
+# Browsers
+brew cask install 'google-chrome'
+# brew cask install 'google-chrome-canary'
+brew cask install 'firefox'
+# brew cask install 'firefoxnightly'
+# brew cask install 'webkit-nightly'
+# brew cask install 'chromium'
+#brew cask install 'tor-browser'
+
+# Quicklook
+brew cask install 'qlcolorcode'
+#brew cask install 'qlmarkdown'
+brew cask install 'quicklook-json'
+#brew cask install 'quicklook-csv'
+brew cask install 'qlstephen'
+brew cask install 'qlvideo'
+brew cask install 'suspicious-package'
+
+# zsh
+brew install zsh-autosuggestions
+brew install zsh-completions
+brew install zsh-syntax-highlighting
+
+# Fonts
+brew cask install 'font-hack-nerd-font'
+
+# Mac App Store
+mas 'Flycut', id: 442160987
+mas 'YubiKey Personalization Tool', id: 638161122
+mas 'HashMaker', id: 509733654
+mas 'Microsoft Remote Desktop', id: 1295203466
+mas 'Amphetamine', id: 937984704
+mas 'TextWrangler', id: 408981434
+

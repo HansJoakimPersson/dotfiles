@@ -1,22 +1,45 @@
 # Add `~/bin` to the `$PATH`
 export PATH="$HOME/bin:$PATH";
 
-# Load the shell dotfiles, and then some:
-# * ~/.path can be used to extend `$PATH`.
-# * ~/.extra can be used for other settings you don’t want to commit.
+
+
+#   Load the shell dotfiles, and then some:
+#   * ~/.path can be used to extend `$PATH`.
+#   * ~/.extra can be used for other settings you don’t want to commit.
+#   ------------------------------------------------------------
 for file in ~/.{path,bash_prompt,exports,aliases,functions,extra}; do
 	[ -r "$file" ] && [ -f "$file" ] && source "$file";
 done;
 unset file;
 
-# Case-insensitive globbing (used in pathname expansion)
-shopt -s nocaseglob;
+
+
+#   gotta tune that bash_history…
+#   ------------------------------------------------------------
+
+# Enable history expansion with space
+# E.g. typing !!<space> will replace the !! with your last command
+bind Space:magic-space
 
 # Append to the Bash history file, rather than overwriting it
 shopt -s histappend;
 
+# Save multi-line commands as one command
+shopt -s cmdhist
+
+
+
+#   better `cd`'ing
+#   ------------------------------------------------------------
+
+# Case-insensitive globbing (used in pathname expansion)
+shopt -s nocaseglob;
+
 # Autocorrect typos in path names when using `cd`
 shopt -s cdspell;
+
+# Autocorrect on directory names to match a glob.
+shopt -s dirspell 2> /dev/null
 
 # Enable some Bash 4 features when possible:
 # * `autocd`, e.g. `**/qux` will enter `./foo/bar/baz/qux`
@@ -24,6 +47,11 @@ shopt -s cdspell;
 for option in autocd globstar; do
 	shopt -s "$option" 2> /dev/null;
 done;
+
+
+
+#   Completion…
+#   ------------------------------------------------------------
 
 # Add tab completion for many Bash commands
 if which brew &> /dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
