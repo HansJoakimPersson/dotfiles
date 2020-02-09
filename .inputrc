@@ -4,6 +4,9 @@ set completion-ignore-case on
 # Treat hyphens and underscores as equivalent
 set completion-map-case on
 
+# Sets readline to display possible completions using different colors to indicate their file types
+set colored-stats On
+
 # List all matches in case multiple possible completions are possible
 set show-all-if-ambiguous on
 
