@@ -7,16 +7,18 @@ cd "$(dirname "${BASH_SOURCE}")";
 git pull origin master;
 
 # install packages from homebrew 
-#sh .brew
+sh brew
 
 # set up MacOS 
-#sh .macos
+sh macos
 
 function doIt() {
 	rsync --exclude ".git/" \
 		--exclude ".DS_Store" \
 		--exclude "bootstrap.sh" \
 		--exclude "README.md" \
+		--exclude "brew" \
+		--exclude "macos" \
 		--exclude "LICENSE-MIT.txt" \
 		-avh --no-perms . ~;
 	source ~/.bash_profile;
