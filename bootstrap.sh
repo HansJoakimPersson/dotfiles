@@ -18,6 +18,7 @@ else
 	echo "Clone the latest version"
 	cd "$(dirname "${BASH_SOURCE}")" || exit
 	git clone https://github.com/HansJoakimPersson/dotfiles
+	cd dotfiles
 fi
 
 # Install packages from homebrew

@@ -10,105 +10,105 @@ brew upgrade
 BREW_PREFIX=$(brew --prefix)
 
 # Taps
-tap 'homebrew/cask'
-tap 'homebrew/cask-eid'
-tap 'homebrew/cask-fonts'
-tap 'homebrew/cask-versions'
-tap 'homebrew/bundle'
+#tap 'homebrew/cask'
+#tap 'homebrew/cask-eid'
+#tap 'homebrew/cask-fonts'
+#tap 'homebrew/cask-versions'
+#tap 'homebrew/bundle'
 
 # Install GNU core utilities (those that come with OS X are outdated)
-brew install'coreutils'
-brew install'moreutils'
-brew install'findutils'
-brew install'gnu-sed --with-default-names'
+brew install 'coreutils'
+brew install 'moreutils'
+brew install 'findutils'
+brew install 'gnu-sed --with-default-names'
 
 # Install a modern version of Bash.
-brew install'bash'
-brew install'bash-completion2'
+brew install 'bash'
+brew install 'bash-completion2'
 
 # Install wget with IRI support
-brew install'wget --with-iri'
+brew install 'wget --with-iri'
 
 # Install more recent versions of some OS X tools
-brew install'vim --with-override-system-vi'
-brew install'nano'
-brew install'grep'
-brew install'openssh'
-brew install'screen'
-brew install'gmp'
+brew install 'vim --with-override-system-vi'
+brew install 'nano'
+brew install 'grep'
+brew install 'openssh'
+brew install 'screen'
+brew install 'gmp'
 
 # Install other useful binaries
-brew install'the_silver_searcher'
-brew install'fzf'
-brew install'git'
-brew install'git-lfs'
-brew install'gnupg'
-brew install'hub'
-brew install'ghostscript' # Also known as 'sg'
-brew install'pipeviewer'  # Also known as 'pv'
-brew install'rename'
-brew install'tree' # List directories in a tree structure
-brew install'zopfli'
-brew install'zlib' # Needed for Memcached
-brew install'p7zip'
-brew install'pigz'
-brew install'vbindiff'
-brew install'httpie'
-brew install'bat' # "cat" on steroids
-brew install'terminal-notifier'
-brew install'android-platform-tools'
-brew install'pidcat' # colored logcat guy
-brew install'ncdu'   # Find where your diskspace went
+brew install 'the_silver_searcher'
+brew install 'fzf'
+brew install 'git'
+brew install 'git-lfs'
+brew install 'gnupg'
+brew install 'hub'
+brew install 'ghostscript' # Also known as 'sg'
+brew install 'pipeviewer'  # Also known as 'pv'
+brew install 'rename'
+brew install 'tree' # List directories in a tree structure
+brew install 'zopfli'
+brew install 'zlib' # Needed for Memcached
+brew install 'p7zip'
+brew install 'pigz'
+brew install 'vbindiff'
+brew install 'httpie'
+brew install 'bat' # "cat" on steroids
+brew install 'terminal-notifier'
+brew install 'android-platform-tools'
+brew install 'pidcat' # colored logcat guy
+brew install 'ncdu'   # Find where your diskspace went
 
 # Install multimedia tools
-brew install'ffmpeg --with-libvpx'
-brew install'imagemagick --with-webp'
+brew install 'ffmpeg --with-libvpx'
+brew install 'imagemagick --with-webp'
 
 # Install Mac App Store command-line interface
-brew install'mas'
+brew install 'mas'
 
 # Install some CTF tools;
-brew install'aircrack-ng'
-brew install'bfg'
-brew install'binutils'
-brew install'binwalk'
-brew install'cifer'
-brew install'dex2jar'
-brew install'dns2tcp'
-brew install'fcrackzip'
-brew install'foremost'
-brew install'hashpump'
-brew install'hydra'
-brew install'john'
-brew install'knock'
-brew install'netpbm'
-brew install'nmap'
-brew install'pngcheck'
-brew install'socat'
-brew install'sqlmap'
-brew install'tcpflow'
-brew install'tcpreplay'
-brew install'tcptrace'
-brew install'ucspi-tcp' # `tcpserver` etc.
-brew install'xpdf'
-brew install'xz'
+brew install 'aircrack-ng'
+brew install 'bfg'
+brew install 'binutils'
+brew install 'binwalk'
+brew install 'cifer'
+brew install 'dex2jar'
+brew install 'dns2tcp'
+brew install 'fcrackzip'
+brew install 'foremost'
+brew install 'hashpump'
+brew install 'hydra'
+brew install 'john'
+brew install 'knock'
+brew install 'netpbm'
+brew install 'nmap'
+brew install 'pngcheck'
+brew install 'socat'
+brew install 'sqlmap'
+brew install 'tcpflow'
+brew install 'tcpreplay'
+brew install 'tcptrace'
+brew install 'ucspi-tcp' # `tcpserver` etc.
+brew install 'xpdf'
+brew install 'xz'
 
 # Install some Forensic tools
-brew install'autopsy'
-brew install'dc3dd'
-brew install'volatility'
+brew install 'autopsy'
+brew install 'dc3dd'
+brew install 'volatility'
 
 # Install some Development tools
-#brew install'php'
-#brew install'php@7.3'
-#brew install'php@7.2'
-#brew install'composer'
-#brew install'imagemagick'
-#brew install'mysql'
-#brew install'nginx'
-#brew install'node'
-#brew install'redis'
-#brew install'yarn'
+#brew install 'php'
+#brew install 'php@7.3'
+#brew install 'php@7.2'
+#brew install 'composer'
+#brew install 'imagemagick'
+#brew install 'mysql'
+#brew install 'nginx'
+#brew install 'node'
+#brew install 'redis'
+#brew install 'yarn'
 
 # Apps
 brew cask install 'aerial'
