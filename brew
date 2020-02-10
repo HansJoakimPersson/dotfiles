@@ -19,7 +19,7 @@ tap 'homebrew/bundle'
 # Install GNU core utilities (those that come with OS X are outdated)
 brew install'coreutils'
 brew install'moreutils'
-brew install'findutils' 
+brew install'findutils'
 brew install'gnu-sed --with-default-names'
 
 # Install a modern version of Bash.
@@ -45,7 +45,7 @@ brew install'git-lfs'
 brew install'gnupg'
 brew install'hub'
 brew install'ghostscript' # Also known as 'sg'
-brew install'pipeviewer' # Also known as 'pv'
+brew install'pipeviewer'  # Also known as 'pv'
 brew install'rename'
 brew install'tree' # List directories in a tree structure
 brew install'zopfli'
@@ -58,14 +58,14 @@ brew install'bat' # "cat" on steroids
 brew install'terminal-notifier'
 brew install'android-platform-tools'
 brew install'pidcat' # colored logcat guy
-brew install'ncdu' # Find where your diskspace went
+brew install'ncdu'   # Find where your diskspace went
 
 # Install multimedia tools
 brew install'ffmpeg --with-libvpx'
 brew install'imagemagick --with-webp'
 
 # Install Mac App Store command-line interface
-brew install'mas' 
+brew install'mas'
 
 # Install some CTF tools;
 brew install'aircrack-ng'
@@ -179,4 +179,3 @@ mas 'HashMaker', id: 509733654
 mas 'Microsoft Remote Desktop', id: 1295203466
 mas 'Amphetamine', id: 937984704
 mas 'TextWrangler', id: 408981434
-
