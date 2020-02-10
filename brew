@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Ask for the administrator password upfront
+sudo -v
+
 # Make sure we’re using the latest Homebrew.
 brew update
 
@@ -16,21 +19,24 @@ BREW_PREFIX=$(brew --prefix)
 #tap 'homebrew/cask-versions'
 #tap 'homebrew/bundle'
 
+# Install Java first to prevent packages that depends on it from failing
+brew cask install 'adoptopenjdk'
+
 # Install GNU core utilities (those that come with OS X are outdated)
 brew install 'coreutils'
 brew install 'moreutils'
 brew install 'findutils'
-brew install 'gnu-sed --with-default-names'
+brew install 'gnu-sed'
 
 # Install a modern version of Bash.
 brew install 'bash'
 brew install 'bash-completion2'
 
 # Install wget with IRI support
-brew install 'wget --with-iri'
+brew install 'wget'
 
 # Install more recent versions of some OS X tools
-brew install 'vim --with-override-system-vi'
+brew install 'vim'
 brew install 'nano'
 brew install 'grep'
 brew install 'openssh'
@@ -56,20 +62,19 @@ brew install 'vbindiff'
 brew install 'httpie'
 brew install 'bat' # "cat" on steroids
 brew install 'terminal-notifier'
-brew install 'android-platform-tools'
 brew install 'pidcat' # colored logcat guy
 brew install 'ncdu'   # Find where your diskspace went
 
 # Install multimedia tools
-brew install 'ffmpeg --with-libvpx'
-brew install 'imagemagick --with-webp'
+brew install 'ffmpeg'
+brew install 'imagemagick'
 
 # Install Mac App Store command-line interface
 brew install 'mas'
 
 # Install some CTF tools;
-brew install 'aircrack-ng'
-brew install 'bfg'
+sudo -v
+brew install 'aircrack-ng' #Java 1.8+ is required to install this forumula
 brew install 'binutils'
 brew install 'binwalk'
 brew install 'cifer'
@@ -94,7 +99,7 @@ brew install 'xpdf'
 brew install 'xz'
 
 # Install some Forensic tools
-brew install 'autopsy'
+brew install 'autopsy' #"java is required 
 brew install 'dc3dd'
 brew install 'volatility'
 
@@ -111,32 +116,27 @@ brew install 'volatility'
 #brew install 'yarn'
 
 # Apps
+sudo -v
 brew cask install 'aerial'
 brew cask install 'adobe-creative-cloud'
 brew cask install 'adobe-acrobat-reader'
 brew cask install 'betterzip'
 brew cask install 'db-browser-for-sqlite'
 brew cask install 'dropbox'
-brew cask install 'discord'
-brew cask install 'disk-inventory-x'
 brew cask install 'docker'
 brew cask install 'easyfind'
-brew cask install 'filezilla'
+brew cask install 'Cyberduck'
 brew cask install 'fsmonitor'
-brew cask install 'ghidra'
+brew cask install 'ghidra' # requires java 11+
 brew cask install 'github'
-brew cask install 'google-backup-and-sync'
 brew cask install 'gpg-suite'
-brew cask install 'hopper-disassembler'
 brew cask install 'insomnia'
-brew cask install 'java'
 brew cask install 'mysqlworkbench'
 brew cask install 'maltego'
 brew cask install 'microsoft-office'
 brew cask install 'skype'
 brew cask install 'slack'
 brew cask install 'transmission'
-brew cask install 'textwrangler'
 brew cask install 'vagrant'
 brew cask install 'viscosity'
 brew cask install 'vmware-fusion'
@@ -145,6 +145,7 @@ brew cask install 'virtualbox' # Might need to allow access in Security settings
 brew cask install 'virtualbox-extension-pack'
 brew cask install 'vlc'
 brew cask install 'yed'
+brew cask install 'android-platform-tools'
 
 # Browsers
 brew cask install 'google-chrome'
@@ -153,7 +154,8 @@ brew cask install 'firefox'
 # brew cask install 'firefoxnightly'
 # brew cask install 'webkit-nightly'
 # brew cask install 'chromium'
-#brew cask install 'tor-browser'
+brew cask install 'tor-browser'
+brew cask install 'brave'
 
 # Quicklook
 brew cask install 'qlcolorcode'
@@ -173,9 +175,9 @@ brew install zsh-syntax-highlighting
 brew cask install 'font-hack-nerd-font'
 
 # Mac App Store
-mas 'Flycut', id: 442160987
-mas 'YubiKey Personalization Tool', id: 638161122
-mas 'HashMaker', id: 509733654
-mas 'Microsoft Remote Desktop', id: 1295203466
-mas 'Amphetamine', id: 937984704
-mas 'TextWrangler', id: 408981434
+mas install 442160987 #'Flycut'
+mas install 638161122 #'YubiKey Personalization Tool'
+mas install 509733654 #'HashMaker'
+mas install 1295203466 #'Microsoft Remote Desktop'
+mas install 937984704 #'Amphetamine'
+mas install 408981434 #'TextWrangler'
