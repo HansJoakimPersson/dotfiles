@@ -2,16 +2,33 @@
 
 echo "Setting up your Mac..."
 
-# pull in the latest version and copy the files to your home folder.
-cd "$(dirname "${BASH_SOURCE}")";
-git pull origin master;
+# Check for Homebrew and install if we don't have it
+if [ -x "$(command -v brew)" ]; then
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
 
-# install packages from homebrew 
+# Check for Git and install if we don't have it
+if ! [ -x "$(command -v git)" ]; then
+  echo 'installing git...' >&2
+  brew install git
+  
+  # Clone the latest version 
+  git clone https://github.com/HansJoakimPersson/dotfiles
+  
+  else
+  
+  # Pull in the latest version 
+	cd "$(dirname "${BASH_SOURCE}")" || exit;
+	git pull origin master;
+fi
+
+# Install packages from homebrew 
 sh brew
 
-# set up MacOS 
+# Set up MacOS 
 sh macos
 
+# Adding dotfiles to home folder 
 function doIt() {
 	rsync --exclude ".git/" \
 		--exclude ".DS_Store" \
@@ -27,12 +44,10 @@ function doIt() {
 if [ "$1" == "--force" -o "$1" == "-f" ]; then
 	doIt;
 else
-	read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1;
+	read -p -r "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1;
 	echo "";
 	if [[ $REPLY =~ ^[Yy]$ ]]; then
 		doIt;
 	fi;
 fi;
 unset doIt;
-
-
