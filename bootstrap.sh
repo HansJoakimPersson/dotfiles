@@ -10,7 +10,7 @@ if test ! $(which brew); then
 fi
 
 # Check if this already is a git repository of my dot files
-if git remote -v | grep -q 'https://github.com/HansJoakimPersson/dotfiles.git'; then
+if git remote -v 2> /dev/null | grep -q 'https://github.com/HansJoakimPersson/dotfiles.git'; then
 	echo "Pull in the latest version"
 	cd "$(dirname "${BASH_SOURCE}")" || exit
 	git pull origin master
@@ -19,8 +19,6 @@ else
 	cd "$(dirname "${BASH_SOURCE}")" || exit
 	git clone https://github.com/HansJoakimPersson/dotfiles
 fi
-
-exit
 
 # Install packages from homebrew
 sh brew
