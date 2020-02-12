@@ -2,6 +2,9 @@
 
 echo "Setting up your Mac..."
 
+# Ask for the administrator password upfront
+sudo -v
+
 # Check for Homebrew and install if we don't have it
 echo "Checking for Homebrew"
 if test ! $(which brew); then
@@ -10,7 +13,7 @@ if test ! $(which brew); then
 fi
 
 # Check if this already is a git repository of my dot files
-if git remote -v 2> /dev/null | grep -q 'https://github.com/HansJoakimPersson/dotfiles.git'; then
+if git remote -v 2> /dev/null | grep -q 'https://github.com/HansJoakimPersson/dotfiles'; then
 	echo "Pull in the latest version"
 	cd "$(dirname "${BASH_SOURCE}")" || exit
 	git pull origin master
