@@ -99,24 +99,13 @@ brew install 'xpdf'
 brew install 'xz'
 
 # Install some Forensic tools
-brew install 'autopsy' #"java is required 
+brew install 'autopsy' #"java is required
 brew install 'dc3dd'
 brew install 'volatility'
 
-# Install some Development tools
-#brew install 'php'
-#brew install 'php@7.3'
-#brew install 'php@7.2'
-#brew install 'composer'
-#brew install 'imagemagick'
-#brew install 'mysql'
-#brew install 'nginx'
-#brew install 'node'
-#brew install 'redis'
-#brew install 'yarn'
-
 # Apps
 sudo -v
+brew cask install 'atom'
 brew cask install 'aerial'
 brew cask install 'adobe-creative-cloud'
 brew cask install 'adobe-acrobat-reader'
@@ -155,13 +144,13 @@ brew cask install 'firefox'
 # brew cask install 'webkit-nightly'
 # brew cask install 'chromium'
 brew cask install 'tor-browser'
-brew cask install 'brave'
+brew cask install 'brave-browser'
 
 # Quicklook
 brew cask install 'qlcolorcode'
-#brew cask install 'qlmarkdown'
+brew cask install 'qlmarkdown'
 brew cask install 'quicklook-json'
-#brew cask install 'quicklook-csv'
+brew cask install 'quicklook-csv'
 brew cask install 'qlstephen'
 brew cask install 'qlvideo'
 brew cask install 'suspicious-package'
@@ -180,4 +169,4 @@ mas install 638161122 #'YubiKey Personalization Tool'
 mas install 509733654 #'HashMaker'
 mas install 1295203466 #'Microsoft Remote Desktop'
 mas install 937984704 #'Amphetamine'
-mas install 408981434 #'TextWrangler'
+mas install 404010395 #'TextWrangler'
