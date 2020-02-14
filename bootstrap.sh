@@ -5,6 +5,12 @@ echo "Setting up your Mac..."
 # Ask for the administrator password upfront
 sudo -v
 
+  # If we're using APFS, make a snapshot before doing anything.
+  if [[ ! -z "$(mount | grep '/ (apfs')" ]]; then
+    sudo tmutil enable
+    sudo tmutil localsnapshot
+  fi
+
 # Check for Homebrew and install if we don't have it
 echo "Checking for Homebrew"
 if test ! $(which brew); then
@@ -22,6 +28,17 @@ else
 	cd "$(dirname "${BASH_SOURCE}")" || exit
 	git clone https://github.com/HansJoakimPersson/dotfiles
 	cd dotfiles
+fi
+
+# Set hostname
+read -p "Change hostname for this computer (Enter to skip): " hostname
+
+if [[ ! -z "$hostname" ]]; then
+	# Set computer name (as done via System Preferences → Sharing)
+  sudo scutil --set ComputerName "$hostname" && \
+  sudo scutil --set HostName "$hostname" && \
+  sudo scutil --set LocalHostName "$hostname" && \
+  sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$hostname"
 fi
 
 # Install packages from homebrew
