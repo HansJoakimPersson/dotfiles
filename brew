@@ -3,6 +3,9 @@
 # Ask for the administrator password upfront
 sudo -v
 
+# Keep-alive: update existing `sudo` time stamp until `.brew` has finished
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
 # Make sure we’re using the latest Homebrew.
 brew update
 
@@ -73,7 +76,6 @@ brew install 'imagemagick'
 brew install 'mas'
 
 # Install some CTF tools;
-sudo -v
 brew install 'aircrack-ng' #Java 1.8+ is required to install this forumula
 brew install 'binutils'
 brew install 'binwalk'
@@ -104,7 +106,6 @@ brew install 'dc3dd'
 brew install 'volatility'
 
 # Apps
-sudo -v
 brew cask install 'atom'
 brew cask install 'aerial'
 brew cask install 'adobe-creative-cloud'
@@ -154,6 +155,9 @@ brew cask install 'quicklook-csv'
 brew cask install 'qlstephen'
 brew cask install 'qlvideo'
 brew cask install 'suspicious-package'
+brew cask install 'qlprettypatch'
+brew cask install 'WebPQuickLook'
+brew cask install "qlswift"
 
 # zsh
 brew install zsh-autosuggestions
@@ -170,3 +174,13 @@ mas install 509733654 #'HashMaker'
 mas install 1295203466 #'Microsoft Remote Desktop'
 mas install 937984704 #'Amphetamine'
 mas install 404010395 #'TextWrangler'
+
+# Atom packages
+apm install compare-files
+apm install atom-beautify
+apm install github-atom-light-syntax
+apm install ide-json
+apm install minimap
+apm install minimap-find-and-replace
+apm install minimap-split-diff
+apm install split-diff
