@@ -5,11 +5,26 @@ echo "Setting up your Mac..."
 # Ask for the administrator password upfront
 sudo -v
 
+echo "From this point on it should be an automated process, go grab a coffe!"
+
+
   # If we're using APFS, make a snapshot before doing anything.
+	echo "Taking local APFS snappshot"
   if [[ ! -z "$(mount | grep '/ (apfs')" ]]; then
     sudo tmutil enable
     sudo tmutil localsnapshot
   fi
+
+	# Set hostname
+	read -p "Change hostname for this computer (Enter to skip): " hostname
+
+	if [[ ! -z "$hostname" ]]; then
+		# Set computer name (as done via System Preferences → Sharing)
+	  sudo scutil --set ComputerName "$hostname" && \
+	  sudo scutil --set HostName "$hostname" && \
+	  sudo scutil --set LocalHostName "$hostname" && \
+	  sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$hostname"
+	fi
 
 # Check for Homebrew and install if we don't have it
 echo "Checking for Homebrew"
@@ -30,24 +45,16 @@ else
 	cd dotfiles
 fi
 
-# Set hostname
-read -p "Change hostname for this computer (Enter to skip): " hostname
-
-if [[ ! -z "$hostname" ]]; then
-	# Set computer name (as done via System Preferences → Sharing)
-  sudo scutil --set ComputerName "$hostname" && \
-  sudo scutil --set HostName "$hostname" && \
-  sudo scutil --set LocalHostName "$hostname" && \
-  sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$hostname"
-fi
-
 # Install packages from homebrew
+echo "Installing Homebrew packages"
 sh brew
 
 # Set up MacOS
+echo "Making configuration changes"
 sh macos
 
 # Adding dotfiles to home folder
+echo "Adding dotfiles to home folder"
 function doIt() {
 	rsync --exclude ".git/" \
 		--exclude ".DS_Store" \
@@ -70,3 +77,5 @@ else
 	fi
 fi
 unset doIt
+
+echo "Done!"
