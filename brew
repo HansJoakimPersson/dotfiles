@@ -4,7 +4,11 @@
 sudo -v
 
 # Keep-alive: update existing `sudo` time stamp until `.brew` has finished
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+while true; do
+	sudo -n true
+	sleep 60
+	kill -0 "$$" || exit
+done 2>/dev/null &
 
 # Make sure we’re using the latest Homebrew.
 brew update
@@ -67,6 +71,7 @@ brew install 'bat' # "cat" on steroids
 brew install 'terminal-notifier'
 brew install 'pidcat' # colored logcat guy
 brew install 'ncdu'   # Find where your diskspace went
+brew install 'shfmt' # Autoformat shell script source code
 
 # Install multimedia tools
 brew install 'ffmpeg'
@@ -107,7 +112,6 @@ brew install 'volatility'
 
 # Apps
 brew cask install 'atom'
-brew cask install 'aerial'
 brew cask install 'adobe-creative-cloud'
 brew cask install 'adobe-acrobat-reader'
 brew cask install 'betterzip'
@@ -157,7 +161,8 @@ brew cask install 'qlvideo'
 brew cask install 'suspicious-package'
 brew cask install 'qlprettypatch'
 brew cask install 'WebPQuickLook'
-brew cask install "qlswift"
+brew cask install 'qlswift'
+brew cask install 'betterzip'
 
 # zsh
 brew install zsh-autosuggestions
@@ -166,6 +171,9 @@ brew install zsh-syntax-highlighting
 
 # Fonts
 brew cask install 'font-hack-nerd-font'
+
+# Remove outdated versions from the cellar
+brew cleanup
 
 # Mac App Store
 mas install 442160987 #'Flycut'
