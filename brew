@@ -1,4 +1,86 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2059
+
+###############################################################################
+# Strict Mode
+###############################################################################
+# Set strict mode -  via http://redsymbol.net/articles/unofficial-bash-strict-mode/
+# Return value of a pipeline is the value of the last (rightmost) command to
+# exit with a non-zero status, or zero if all commands in the pipeline exit
+# successfully.
+
+# Print a helpful message if a pipeline with non-zero exit code causes the
+# script to exit as described above.
+#trap 'echo "Aborting due to errexit on line $LINENO. Exit code: $?" >&2' ERR
+
+# Exit immediately if a pipeline returns non-zero.
+# Append "|| true" if you expect an error.
+set -o errexit
+# Allow the above trap be inherited by all functions in the script.
+# Exit on error inside any functions or subshells.
+set -o errtrace
+# Do not allow use of undefined vars. Use ${VAR:-} to use an undefined VAR
+set -o nounset
+# Return value of a pipeline is the value of the last (rightmost) command to
+# exit with a non-zero status, or zero if all commands in the pipeline exit
+# successfully.
+set -o pipefail
+# Turn on traces, useful while debugging but commented out by default
+#set -o xtrace
+
+# Set $IFS to only newline and tab.
+#
+# http://www.dwheeler.com/essays/filenames-in-shell.html
+IFS=$'\n\t'
+
+###############################################################################
+# Globals
+###############################################################################
+# Reset
+readonly col_reset="\x1b[0m" # Text Reset
+
+# Foreground color
+readonly col_green="\x1b[32m"
+readonly col_yellow="\x1b[33m"
+readonly col_red="\x1b[31m"
+
+# Special characters
+readonly char_succ="✔"
+readonly char_fail="✖"
+
+execute() {
+	printf '\n ⇒ %s ' "${@/eval/}"
+	if
+		("*@ > /dev/null 2>&1") &
+		spinner "$!"
+	then
+		ok
+	else
+		error
+	fi
+}
+
+spinner() {
+	local i sp n
+	sp="\|/-"
+	n=${#sp}
+	while ps a | awk '{print $1}' | grep -q "${1}"; do
+		sleep "0.75"
+		#printf "\b${sp:i++%${#sp}:1}"
+		printf "%s\b" "${sp:i++%n:1}"
+	done
+}
+error() {
+	printf '%s' "${col_red}${char_fail}${col_reset}"
+}
+
+ok() {
+	printf '%s' "${col_green}${char_succ}${col_reset}"
+}
+
+###############################################################################
+# Main script
+###############################################################################
 
 # Ask for the administrator password upfront
 sudo -v
@@ -11,179 +93,190 @@ while true; do
 done 2>/dev/null &
 
 # Make sure we’re using the latest Homebrew.
-brew update
+printf "\n\nMake sure we’re using the latest Homebrew"
+execute eval "brew update"
 
 # Upgrade any already-installed formulae.
-brew upgrade
+printf "\n\nUpgrade any already-installed formulae"
+execute eval "brew upgrade"
 
 # Save Homebrew’s installed location.
 BREW_PREFIX=$(brew --prefix)
 
 # Taps
-#tap 'homebrew/cask'
-#tap 'homebrew/cask-eid'
-#tap 'homebrew/cask-fonts'
-#tap 'homebrew/cask-versions'
-#tap 'homebrew/bundle'
+#tap "homebrew/cask"
+#tap "homebrew/cask-eid"
+#tap "homebrew/cask-fonts"
+#tap "homebrew/cask-versions"
+#tap "homebrew/bundle"
 
 # Install Java first to prevent packages that depends on it from failing
-brew cask install 'adoptopenjdk'
+execute eval "brew cask install adoptopenjdk"
 
 # Install GNU core utilities (those that come with OS X are outdated)
-brew install 'coreutils'
-brew install 'moreutils'
-brew install 'findutils'
-brew install 'gnu-sed'
+printf "\n\n${col_yellow}Installing core utilities${col_reset} "
+
+execute eval "brew install coreutils"
+execute eval "brew install moreutils"
+execute eval "brew install findutils"
+execute eval "brew install gnu-sed"
 
 # Install a modern version of Bash.
-brew install 'bash'
-brew install 'bash-completion2'
+execute eval "brew install bash"
+execute eval "brew install bash-completion2"
 
 # Install wget with IRI support
-brew install 'wget'
+execute eval "brew install wget"
 
 # Install more recent versions of some OS X tools
-brew install 'vim'
-brew install 'nano'
-brew install 'grep'
-brew install 'openssh'
-brew install 'screen'
-brew install 'gmp'
+execute eval "brew install vim"
+execute eval "brew install nano"
+execute eval "brew install grep"
+execute eval "brew install openssh"
+execute eval "brew install screen"
+execute eval "brew install gmp"
 
 # Install other useful binaries
-brew install 'the_silver_searcher'
-brew install 'fzf'
-brew install 'git'
-brew install 'git-lfs'
-brew install 'gnupg'
-brew install 'hub'
-brew install 'ghostscript' # Also known as 'sg'
-brew install 'pipeviewer'  # Also known as 'pv'
-brew install 'rename'
-brew install 'tree' # List directories in a tree structure
-brew install 'zopfli'
-brew install 'zlib' # Needed for Memcached
-brew install 'p7zip'
-brew install 'pigz'
-brew install 'vbindiff'
-brew install 'httpie'
-brew install 'bat' # "cat" on steroids
-brew install 'terminal-notifier'
-brew install 'pidcat' # colored logcat guy
-brew install 'ncdu'   # Find where your diskspace went
-brew install 'shfmt' # Autoformat shell script source code
+execute eval "brew install the_silver_searcher"
+execute eval "brew install fzf"
+execute eval "brew install git"
+execute eval "brew install git-lfs"
+execute eval "brew install gnupg"
+execute eval "brew install hub"
+execute eval "brew install ghostscript" # Also known as "sg"
+execute eval "brew install pipeviewer"  # Also known as "pv"
+execute eval "brew install rename"
+execute eval "brew install tree" # List directories in a tree structure
+execute eval "brew install zopfli"
+execute eval "brew install zlib" # Needed for Memcached
+execute eval "brew install p7zip"
+execute eval "brew install pigz"
+execute eval "brew install vbindiff"
+execute eval "brew install httpie"
+execute eval "brew install bat" # "cat" on steroids
+execute eval "brew install terminal-notifier"
+execute eval "brew install pidcat" # colored logcat guy
+execute eval "brew install ncdu"   # Find where your diskspace went
+execute eval "brew install shfmt" # Autoformat shell script source code
 
 # Install multimedia tools
-brew install 'ffmpeg'
-brew install 'imagemagick'
+execute eval "brew install ffmpeg"
+execute eval "brew install imagemagick"
 
 # Install Mac App Store command-line interface
-brew install 'mas'
+execute eval "brew install mas"
 
 # Install some CTF tools;
-brew install 'aircrack-ng' #Java 1.8+ is required to install this forumula
-brew install 'binutils'
-brew install 'binwalk'
-brew install 'cifer'
-brew install 'dex2jar'
-brew install 'dns2tcp'
-brew install 'fcrackzip'
-brew install 'foremost'
-brew install 'hashpump'
-brew install 'hydra'
-brew install 'john'
-brew install 'knock'
-brew install 'netpbm'
-brew install 'nmap'
-brew install 'pngcheck'
-brew install 'socat'
-brew install 'sqlmap'
-brew install 'tcpflow'
-brew install 'tcpreplay'
-brew install 'tcptrace'
-brew install 'ucspi-tcp' # `tcpserver` etc.
-brew install 'xpdf'
-brew install 'xz'
+printf "\n\nInstalling some CTF tools"
+execute eval "brew install aircrack-ng" #Java 1.8+ is required to install this forumula
+execute eval "brew install binutils"
+execute eval "brew install binwalk"
+execute eval "brew install cifer"
+execute eval "brew install dex2jar"
+execute eval "brew install dns2tcp"
+execute eval "brew install fcrackzip"
+execute eval "brew install foremost"
+execute eval "brew install hashpump"
+execute eval "brew install hydra"
+execute eval "brew install john"
+execute eval "brew install knock"
+execute eval "brew install netpbm"
+execute eval "brew install nmap"
+execute eval "brew install pngcheck"
+execute eval "brew install socat"
+execute eval "brew install sqlmap"
+execute eval "brew install tcpflow"
+execute eval "brew install tcpreplay"
+execute eval "brew install tcptrace"
+execute eval "brew install ucspi-tcp" # $(tcpserver) etc.
+execute eval "brew install xpdf"
+execute eval "brew install xz"
 
 # Install some Forensic tools
-brew install 'autopsy' #"java is required
-brew install 'dc3dd'
-brew install 'volatility'
+execute eval "brew install autopsy" #"java is required
+execute eval "brew install dc3dd"
+execute eval "brew install volatility"
 
 # Apps
-brew cask install 'atom'
-brew cask install 'adobe-creative-cloud'
-brew cask install 'adobe-acrobat-reader'
-brew cask install 'betterzip'
-brew cask install 'db-browser-for-sqlite'
-brew cask install 'dropbox'
-brew cask install 'docker'
-brew cask install 'easyfind'
-brew cask install 'Cyberduck'
-brew cask install 'fsmonitor'
-brew cask install 'ghidra' # requires java 11+
-brew cask install 'github'
-brew cask install 'gpg-suite'
-brew cask install 'insomnia'
-brew cask install 'mysqlworkbench'
-brew cask install 'maltego'
-brew cask install 'microsoft-office'
-brew cask install 'skype'
-brew cask install 'slack'
-brew cask install 'transmission'
-brew cask install 'vagrant'
-brew cask install 'viscosity'
-brew cask install 'vmware-fusion'
-brew cask install 'wireshark'
-brew cask install 'virtualbox' # Might need to allow access in Security settings
-brew cask install 'virtualbox-extension-pack'
-brew cask install 'vlc'
-brew cask install 'yed'
-brew cask install 'android-platform-tools'
+printf "\n\nInstalling Apps"
+execute eval "brew cask install atom"
+execute eval "brew cask install adobe-creative-cloud"
+execute eval "brew cask install adobe-acrobat-reader"
+execute eval "brew cask install betterzip"
+execute eval "brew cask install db-browser-for-sqlite"
+execute eval "brew cask install dropbox"
+execute eval "brew cask install docker"
+execute eval "brew cask install easyfind"
+execute eval "brew cask install Cyberduck"
+execute eval "brew cask install fsmonitor"
+execute eval "brew cask install ghidra" # requires java 11+
+execute eval "brew cask install github"
+execute eval "brew cask install gpg-suite"
+execute eval "brew cask install insomnia"
+execute eval "brew cask install mysqlworkbench"
+execute eval "brew cask install maltego"
+execute eval "brew cask install microsoft-office"
+execute eval "brew cask install skype"
+execute eval "brew cask install slack"
+execute eval "brew cask install transmission"
+execute eval "brew cask install vagrant"
+execute eval "brew cask install viscosity"
+execute eval "brew cask install vmware-fusion"
+execute eval "brew cask install wireshark"
+execute eval "brew cask install virtualbox" # Might need to allow access in Security settings
+execute eval "brew cask install virtualbox-extension-pack"
+execute eval "brew cask install vlc"
+execute eval "brew cask install yed"
+execute eval "brew cask install android-platform-tools"
 
 # Browsers
-brew cask install 'google-chrome'
-# brew cask install 'google-chrome-canary'
-brew cask install 'firefox'
-# brew cask install 'firefoxnightly'
-# brew cask install 'webkit-nightly'
-# brew cask install 'chromium'
-brew cask install 'tor-browser'
-brew cask install 'brave-browser'
+execute eval "brew cask install google-chrome"
+# execute eval "brew cask install google-chrome-canary"
+execute eval "brew cask install firefox"
+# execute eval "brew cask install firefoxnightly"
+# execute eval "brew cask install webkit-nightly"
+# execute eval "brew cask install chromium"
+execute eval "brew cask install tor-browser"
+execute eval "brew cask install brave-browser"
 
 # Quicklook
-brew cask install 'qlcolorcode'
-brew cask install 'qlmarkdown'
-brew cask install 'quicklook-json'
-brew cask install 'quicklook-csv'
-brew cask install 'qlstephen'
-brew cask install 'qlvideo'
-brew cask install 'suspicious-package'
-brew cask install 'qlprettypatch'
-brew cask install 'WebPQuickLook'
-brew cask install 'qlswift'
-brew cask install 'betterzip'
+printf "\n\nInstalling Quicklook plugins"
+execute eval "brew cask install qlcolorcode"
+execute eval "brew cask install qlmarkdown"
+execute eval "brew cask install quicklook-json"
+execute eval "brew cask install quicklook-csv"
+execute eval "brew cask install qlstephen"
+execute eval "brew cask install qlvideo"
+execute eval "brew cask install suspicious-package"
+execute eval "brew cask install qlprettypatch"
+execute eval "brew cask install WebPQuickLook"
+execute eval "brew cask install qlswift"
+execute eval "brew cask install betterzip"
 
 # zsh
-brew install zsh-autosuggestions
-brew install zsh-completions
-brew install zsh-syntax-highlighting
+execute eval "brew install zsh-autosuggestions"
+execute eval "brew install zsh-completions"
+execute eval "brew install zsh-syntax-highlighting"
 
 # Fonts
-brew cask install 'font-hack-nerd-font'
+execute eval "brew cask install font-hack-nerd-font"
 
 # Remove outdated versions from the cellar
-brew cleanup
+printf "\n\nRemove outdated versions"
+execute eval "brew cleanup"
 
 # Mac App Store
-mas install 442160987 #'Flycut'
-mas install 638161122 #'YubiKey Personalization Tool'
-mas install 509733654 #'HashMaker'
-mas install 1295203466 #'Microsoft Remote Desktop'
-mas install 937984704 #'Amphetamine'
-mas install 404010395 #'TextWrangler'
+printf "\n\nnInstalling Mac App Store apps"
+execute eval "mas install 442160987" #"Flycut"
+execute eval "mas install 638161122" #"YubiKey Personalization Tool"
+execute eval "mas install 509733654" #"HashMaker"
+execute eval "mas install 1295203466" #"Microsoft Remote Desktop"
+execute eval "mas install 937984704" #"Amphetamine"
+execute eval "mas install 404010395" #"TextWrangler"
 
 # Atom packages
+printf "\n\nnInstalling Atom packages"
+Mac App Store
 apm install compare-files
 apm install atom-beautify
 apm install github-atom-light-syntax
