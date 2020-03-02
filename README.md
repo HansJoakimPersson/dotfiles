@@ -1,50 +1,25 @@
-# Joakim's dotfiles
+# Dotfiles
 
-![Screenshot of my shell prompt](https://i.imgur.com/EkEtphC.png)
+This repository works helps me configure and maintain my Mac. It simplifies the effort of install my preferred MacOS flavour manually. Feel free to explore, learn and copy parts to your own dotfiles. Enjoy! :smile:
 
 ## Installation
 
 **Warning:** If you want to give these dotfiles a try, you should first fork this repository, review the code, and remove things you don’t want or need. Don’t blindly use my settings unless you know what that entails. Use at your own risk!
 
-### Using Git and the bootstrap script
-
-You can clone the repository wherever you want. (I like to keep it in `~/Projects/dotfiles`, with `~/dotfiles` as a symlink.) The bootstrapper script will pull in the latest version and copy the files to your home folder.
+To install and setup your MacOS:
 
 ```bash
-git clone https://github.com/HansJoakimPersson/dotfiles.git && cd dotfiles && source bootstrap.sh
+bash <(curl -s https://raw.githubusercontent.com/HansJoakimPersson/dotfiles/master/bootstrap.sh)
 ```
 
-To update, `cd` into your local `dotfiles` repository and then:
+To update, `cd` into your local `dotfiles` repository and rerun:
 
 ```bash
-source bootstrap.sh
+sh bootstrap.sh
 ```
 
-Alternatively, to update while avoiding the confirmation prompt:
-
-```bash
-set -- -f; source bootstrap.sh
-```
-
-### Git-free install
-
-To install these dotfiles without Git:
-
-```bash
-curl -s https://raw.githubusercontent.com/HansJoakimPersson/dotfiles/master/bootstrap.sh | bash
-```
-
-To update later on, just run that command again.
-
-### Specify the `$PATH`
-
-If `~/.path` exists, it will be sourced along with the other files, before any feature testing (such as [detecting which version of `ls` is being used](https://github.com/mathiasbynens/dotfiles/blob/aff769fd75225d8f2e481185a71d5e05b76002dc/.aliases#L21-L26)) takes place.
-
-Here’s an example `~/.path` file that adds `/usr/local/bin` to the `$PATH`:
-
-```bash
-export PATH="/usr/local/bin:$PATH"
-```
+The setup script is smart enough to back up your existing dotfiles into a
+`~/dotfiles_old/` directory if you already have any dotfiles of the same name as the dotfile symlinks being created in your home directory.
 
 ### Add custom commands without creating a new fork
 
@@ -55,28 +30,39 @@ My `~/.extra` looks something like this:
 ```bash
 # Git credentials
 # Not in the repository, to prevent people from accidentally committing under my name
-GIT_AUTHOR_NAME="Mathias Bynens"
+GIT_AUTHOR_NAME="Joakim Persson"
 GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
 git config --global user.name "$GIT_AUTHOR_NAME"
-GIT_AUTHOR_EMAIL="mathias@mailinator.com"
+GIT_AUTHOR_EMAIL="mail@mailinator.com"
 GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
 git config --global user.email "$GIT_AUTHOR_EMAIL"
 ```
 
 You could also use `~/.extra` to override settings, functions and aliases from my dotfiles repository. It’s probably better to [fork this repository](https://github.com/mathiasbynens/dotfiles/fork) instead, though.
 
+## Aliases and Functions
+To keep things easy, the `~/.bashrc` and `~/.bash_profile` files are extremely simple, and should never need to be modified. Instead, add your aliases, functions, settings, etc into corresponding file. They're all automatically sourced when a new shell is opened. Take a look, I have [a lot of aliases and functions](source). I even have a [fancy prompt](.bash_prompt) that shows the current directory, time and current git/svn repo status.
+
+## ¯\\_(ツ)_/¯ Warning / Liability
+> Warning:
+The creator of this repo is not responsible if your machine ends up in a state you are not happy with. If you are concerned, look at the code to review everything this will do to your machine :)
+
+## Feedback
+
+Suggestions/improvements
+[welcome](https://github.com/mathiasbynens/dotfiles/issues)!
+
 ## Thanks to…
 
-* @ptb and [his _macOS Setup_ repository](https://github.com/ptb/mac-setup)
+I first got the idea for starting this project by visiting the [Github does dotfiles](https://dotfiles.github.io/) project. Both [Zach Holman](https://github.com/holman/dotfiles) and [Mathias Bynens](https://github.com/mathiasbynens/dotfiles) were great sources of inspiration.
+
+* [Mathias Bynens](https://mathiasbynens.be/) and his [dotfiles repository](https://github.com/mathiasbynens/dotfiles) , which helped a lot with configuring macOS settings. Mathias’ macOS defaults script is legendary and many people include a version of his configuration file in their own macOS dotfiles.
+* [Dries Vints](https://github.com/driesvints), his [dotfiles repository](https://github.com/driesvints/dotfiles) and associated [blog post](https://driesvints.com/blog/getting-started-with-dotfiles/)
+*[Paul Irish](https://github.com/paulirish) and his [dotfiles repository](https://github.com/paulirish/dotfiles)
+*[Zach Holman](https://github.com/holman), his [dotfiles repository](https://github.com/holman/dotfiles) and associated [blog post](https://zachholman.com/2010/08/dotfiles-are-meant-to-be-forked/)
+*[Peter T Bosse](https://github.com/ptb) and his [mac-setup.command](https://github.com/ptb/mac-setup/blob/develop/mac-setup.command), its massive!
 * [Ben Alman](http://benalman.com/) and his [dotfiles repository](https://github.com/cowboy/dotfiles)
-* [Cătălin Mariș](https://github.com/alrra) and his [dotfiles repository](https://github.com/alrra/dotfiles)
-* [Gianni Chiappetta](https://butt.zone/) for sharing his [amazing collection of dotfiles](https://github.com/gf3/dotfiles)
-* [Jan Moesen](http://jan.moesen.nu/) and his [ancient `.bash_profile`](https://gist.github.com/1156154) + [shiny _tilde_ repository](https://github.com/janmoesen/tilde)
-* [Lauri ‘Lri’ Ranta](http://lri.me/) for sharing [loads of hidden preferences](http://osxnotes.net/defaults.html)
-* [Matijs Brinkhuis](https://matijs.brinkhu.is/) and his [dotfiles repository](https://github.com/matijs/dotfiles)
-* [Nicolas Gallagher](http://nicolasgallagher.com/) and his [dotfiles repository](https://github.com/necolas/dotfiles)
-* [Sindre Sorhus](https://sindresorhus.com/)
-* [Tom Ryder](https://sanctum.geek.nz/) and his [dotfiles repository](https://sanctum.geek.nz/cgit/dotfiles.git/about)
-* [Kevin Suttle](http://kevinsuttle.com/) and his [dotfiles repository](https://github.com/kevinSuttle/dotfiles) and [macOS-Defaults project](https://github.com/kevinSuttle/macOS-Defaults), which aims to provide better documentation for [`~/.macos`](https://mths.be/macos)
-* [Haralan Dobrev](https://hkdobrev.com/)
-* Anyone who [contributed a patch](https://github.com/mathiasbynens/dotfiles/contributors) or [made a helpful suggestion](https://github.com/mathiasbynens/dotfiles/issues)
+
+## License
+
+The MIT License. Please see [the license file](license.md) for more information.
