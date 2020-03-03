@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2059
+# shellcheck disable=SC2162
 
 ###############################################################################
 # Strict Mode
@@ -56,10 +57,8 @@ readonly char_fail="✖"
 
 execute() {
 	printf '\n ⇒ %s ' "${@/eval/}"
-	if
-		("*@ > /dev/null 2>&1") &
-		spinner "$!"
-	then
+	if (true); then # ("*@ > /dev/null 2>&1") &
+		# spinner "$!"
 		ok
 	else
 		error
@@ -77,11 +76,11 @@ spinner() {
 	done
 }
 error() {
-	printf '%s' "${col_red}${char_fail}${col_reset}"
+	printf "${col_red}${char_fail}${col_reset}"
 }
 
 ok() {
-	printf '%s' "${col_green}${char_succ}${col_reset}"
+	printf "${col_green}${char_succ}${col_reset}"
 }
 
 ###############################################################################
@@ -102,8 +101,8 @@ printf "\nSome settings require sudo to change. "
 sudo -v
 
 # Please give me some answers
-read  -p -r "Change hostname for ${HOSTNAME}: (Enter to skip):"  hostname
-read  -p -r "Adding files to home folder may overwrite existing files. Are you sure? (y/N) " dotfiles
+read  -p "Change hostname for ${HOSTNAME}: (Enter to skip):"  hostname
+read  -p "Adding files to home folder may overwrite existing files. Are you sure? (y/N) " dotfiles
 
 clear
 
@@ -113,7 +112,6 @@ printf "\n  From this point on it should be an automated process, go grab a coff
 
 secs=$((5))
 while [ $secs -gt 0 ]; do
-	#echo -ne "$secs\033[0K\r"
 	printf "%s\b" "$secs"
 	sleep 1
 	: $((secs--))
@@ -123,7 +121,7 @@ printf " \b"
 # If we're using APFS, make a snapshot before doing anything.
 if    [[ -n "$(  mount | grep '/ (apfs')" ]]; then
 	printf "\n\n${col_yellow}Taking local APFS snappshot${col_reset} "
-	#execute eval "sudo tmutil localsnapshot"
+	execute eval "sudo tmutil localsnapshot"
 fi
 
 # disable sleep
@@ -131,11 +129,11 @@ printf "\n\n${col_yellow}Temporary disabling sleep${col_reset}"
 execute eval "sudo pmset -a sleep 0"
 execute eval "sudo pmset -a hibernatemode 0"
 execute eval "sudo pmset -a disablesleep 1"
-exit
+
 # Set hostname
 if  [[ -n $hostname     ]]; then
 	#Set computer name (as done via System Preferences → Sharing)
-	printf "\n\n${col_yellow}Setting hostname to${col_reset} $hostname\n"
+	printf "\n\n${col_yellow}Setting hostname to${col_reset} \"$hostname\""
 	execute eval "sudo scutil --set ComputerName ${hostname} &&"
 	execute eval "sudo scutil --set HostName ${hostname} &&"
 	execute eval "sudo scutil --set LocalHostName ${hostname} &&"
@@ -148,8 +146,14 @@ printf "\n\n${col_yellow}Checking homebrew${col_reset} "
 if test ! "$(command -v brew)"; then
 	printf "\n ⇒  downloading and installing Homebrew "
 	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	if [[ $? != 0 ]]; then
+		error "unable to install homebrew, script $0 abort!"
+		exit 2
+	fi
 	brew analytics off
+	ok
 else
+	printf "\n ⇒  Homebrew are already installed "
 	ok
 fi
 
@@ -160,16 +164,15 @@ if git remote -v 2>/dev/null  | grep -q 'https://github.com/HansJoakimPersson/do
 else
 	printf "\n\n${col_yellow}Clone the latest version of this git repository${col_reset}"
 	execute eval "git clone https://github.com/HansJoakimPersson/dotfiles"
-	cd dotfiles
+	#cd dotfiles
 fi
 
 # Install packages from homebrew
-printf "\n\n${col_yellow}Installing Homebrew packages${col_reset}"
 sh brew
-
+exit
 # Set up MacOS
 printf "\n\n${col_yellow}Updating system configuration${col_reset}"
-sh macos
+#sh macos
 
 # Adding dotfiles to home folder
 if  [[ $dotfiles =~ ^[y|yes|Y]$   ]]; then
@@ -191,7 +194,7 @@ if  [[ $dotfiles =~ ^[y|yes|Y]$   ]]; then
 fi
 
 # reenabling sleep
-printf "\n${col_yellow}Reenabling sleep${col_reset}"
+printf "\n\n${col_yellow}Reenabling sleep${col_reset}"
 execute eval "sudo pmset -a sleep 1"
 execute eval "sudo pmset -a hibernatemode 3"
 execute eval "sudo pmset -a disablesleep 0"

@@ -71,16 +71,20 @@ spinner() {
 	done
 }
 error() {
-	printf '%s' "${col_red}${char_fail}${col_reset}"
+	printf "${col_red}${char_fail}${col_reset}"
 }
 
 ok() {
-	printf '%s' "${col_green}${char_succ}${col_reset}"
+	printf "${col_green}${char_succ}${col_reset}"
 }
 
 ###############################################################################
 # Main script
 ###############################################################################
+
+printf "\n\n================================================================================\n"
+printf "=                       Installing Homebrew packages...                        =\n"
+printf "================================================================================\n"
 
 # Ask for the administrator password upfront
 sudo -v
@@ -92,16 +96,32 @@ while true; do
 	kill -0 "$$" || exit
 done 2>/dev/null &
 
+# Check for Homebrew and install if we don't have it
+printf "\n${col_yellow}Checking homebrew${col_reset} "
+if test ! "$(command -v brew)"; then
+	printf "\n ⇒  downloading and installing Homebrew "
+	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	if [[ $? != 0 ]]; then
+		error "unable to install homebrew, script $0 abort!"
+		exit 2
+	fi
+	brew analytics off
+	ok
+else
+	printf "\n ⇒  Homebrew are already installed "
+	ok
+fi
+
 # Make sure we’re using the latest Homebrew.
-printf "\n\nMake sure we’re using the latest Homebrew"
+printf "\n\n${col_yellow}Make sure we’re using the latest Homebrew${col_reset}"
 execute eval "brew update"
 
 # Upgrade any already-installed formulae.
-printf "\n\nUpgrade any already-installed formulae"
+printf "\n\n${col_yellow}Upgrade any already-installed formulae${col_reset}"
 execute eval "brew upgrade"
 
 # Save Homebrew’s installed location.
-BREW_PREFIX=$(brew --prefix)
+export BREW_PREFIX=$(brew --prefix)
 
 # Taps
 #tap "homebrew/cask"
@@ -109,9 +129,6 @@ BREW_PREFIX=$(brew --prefix)
 #tap "homebrew/cask-fonts"
 #tap "homebrew/cask-versions"
 #tap "homebrew/bundle"
-
-# Install Java first to prevent packages that depends on it from failing
-execute eval "brew cask install adoptopenjdk"
 
 # Install GNU core utilities (those that come with OS X are outdated)
 printf "\n\n${col_yellow}Installing core utilities${col_reset} "
@@ -128,7 +145,7 @@ execute eval "brew install bash-completion2"
 # Install wget with IRI support
 execute eval "brew install wget"
 
-# Install more recent versions of some OS X tools
+# Install more recent versions of some MacOS tools
 execute eval "brew install vim"
 execute eval "brew install nano"
 execute eval "brew install grep"
@@ -163,11 +180,13 @@ execute eval "brew install shfmt" # Autoformat shell script source code
 execute eval "brew install ffmpeg"
 execute eval "brew install imagemagick"
 
-# Install Mac App Store command-line interface
-execute eval "brew install mas"
+# Install some CTF and Forensics tools;
+printf "\n\n${col_yellow}Installing some CTF and Forensics tools${col_reset}"
+
+# Install Java first to prevent packages that depends on it from failing
+execute eval "brew cask install adoptopenjdk"
 
 # Install some CTF tools;
-printf "\n\nInstalling some CTF tools"
 execute eval "brew install aircrack-ng" #Java 1.8+ is required to install this forumula
 execute eval "brew install binutils"
 execute eval "brew install binwalk"
@@ -198,36 +217,36 @@ execute eval "brew install dc3dd"
 execute eval "brew install volatility"
 
 # Apps
-printf "\n\nInstalling Apps"
+printf "\n\n${col_yellow}Installing Apps${col_reset}"
 execute eval "brew cask install atom"
-execute eval "brew cask install adobe-creative-cloud"
+#execute eval "brew cask install adobe-creative-cloud"
 execute eval "brew cask install adobe-acrobat-reader"
 execute eval "brew cask install betterzip"
 execute eval "brew cask install db-browser-for-sqlite"
-execute eval "brew cask install dropbox"
+#execute eval "brew cask install dropbox"
 execute eval "brew cask install docker"
 execute eval "brew cask install easyfind"
 execute eval "brew cask install Cyberduck"
 execute eval "brew cask install fsmonitor"
 execute eval "brew cask install ghidra" # requires java 11+
-execute eval "brew cask install github"
+#execute eval "brew cask install github"
 execute eval "brew cask install gpg-suite"
 execute eval "brew cask install insomnia"
 execute eval "brew cask install mysqlworkbench"
 execute eval "brew cask install maltego"
 execute eval "brew cask install microsoft-office"
-execute eval "brew cask install skype"
+#execute eval "brew cask install skype"
 execute eval "brew cask install slack"
 execute eval "brew cask install transmission"
 execute eval "brew cask install vagrant"
 execute eval "brew cask install viscosity"
 execute eval "brew cask install vmware-fusion"
 execute eval "brew cask install wireshark"
-execute eval "brew cask install virtualbox" # Might need to allow access in Security settings
-execute eval "brew cask install virtualbox-extension-pack"
+#execute eval "brew cask install virtualbox" # Might need to allow access in Security settings
+#execute eval "brew cask install virtualbox-extension-pack"
 execute eval "brew cask install vlc"
 execute eval "brew cask install yed"
-execute eval "brew cask install android-platform-tools"
+#execute eval "brew cask install android-platform-tools"
 
 # Browsers
 execute eval "brew cask install google-chrome"
@@ -240,7 +259,7 @@ execute eval "brew cask install tor-browser"
 execute eval "brew cask install brave-browser"
 
 # Quicklook
-printf "\n\nInstalling Quicklook plugins"
+printf "\n\n${col_yellow}Installing Quicklook plugins${col_reset}"
 execute eval "brew cask install qlcolorcode"
 execute eval "brew cask install qlmarkdown"
 execute eval "brew cask install quicklook-json"
@@ -254,6 +273,7 @@ execute eval "brew cask install qlswift"
 execute eval "brew cask install betterzip"
 
 # zsh
+printf "\n\n${col_yellow}Installing zsh plugins${col_reset}"
 execute eval "brew install zsh-autosuggestions"
 execute eval "brew install zsh-completions"
 execute eval "brew install zsh-syntax-highlighting"
@@ -262,11 +282,15 @@ execute eval "brew install zsh-syntax-highlighting"
 execute eval "brew cask install font-hack-nerd-font"
 
 # Remove outdated versions from the cellar
-printf "\n\nRemove outdated versions"
+printf "\n\n${col_yellow}Remove outdated versions${col_reset}"
 execute eval "brew cleanup"
 
 # Mac App Store
-printf "\n\nnInstalling Mac App Store apps"
+printf "\n\n${col_yellow}Installing Mac App Store apps${col_reset}"
+# Install Mac App Store command-line interface
+execute eval "brew install mas"
+
+# Install Apps
 execute eval "mas install 442160987" #"Flycut"
 execute eval "mas install 638161122" #"YubiKey Personalization Tool"
 execute eval "mas install 509733654" #"HashMaker"
@@ -275,13 +299,12 @@ execute eval "mas install 937984704" #"Amphetamine"
 execute eval "mas install 404010395" #"TextWrangler"
 
 # Atom packages
-printf "\n\nnInstalling Atom packages"
-Mac App Store
-apm install compare-files
-apm install atom-beautify
-apm install github-atom-light-syntax
-apm install ide-json
-apm install minimap
-apm install minimap-find-and-replace
-apm install minimap-split-diff
-apm install split-diff
+printf "\n\n${col_yellow}Installing Atom packages${col_reset}"
+execute eval "apm install compare-files"
+execute eval "apm install atom-beautify"
+execute eval "apm install github-atom-light-syntax"
+execute eval "apm install ide-json"
+execute eval "apm install minimap"
+execute eval "apm install minimap-find-and-replace"
+execute eval "apm install minimap-split-diff"
+execute eval "apm install split-diff"
