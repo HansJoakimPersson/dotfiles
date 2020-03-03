@@ -131,6 +131,7 @@ printf "\n\n${col_yellow}Temporary disabling sleep${col_reset}"
 execute eval "sudo pmset -a sleep 0"
 execute eval "sudo pmset -a hibernatemode 0"
 execute eval "sudo pmset -a disablesleep 1"
+
 # Set hostname
 if  [[ -n $hostname     ]]; then
 	#Set computer name (as done via System Preferences → Sharing)
@@ -165,15 +166,14 @@ if git remote -v 2>/dev/null  | grep -q 'https://github.com/HansJoakimPersson/do
 else
 	printf "\n\n${col_yellow}Clone the latest version of this git repository${col_reset}"
 	execute eval "git clone https://github.com/HansJoakimPersson/dotfiles"
-	#cd dotfiles
+	cd dotfiles
 fi
 
 # Install packages from homebrew
 sh brew
-exit
+
 # Set up MacOS
-printf "\n\n${col_yellow}Updating system configuration${col_reset}"
-#sh macos
+sh macos
 
 # Adding dotfiles to home folder
 if  [[ $dotfiles =~ ^[y|yes|Y]$   ]]; then
