@@ -131,7 +131,6 @@ printf "\n\n${col_yellow}Temporary disabling sleep${col_reset}"
 execute eval "sudo pmset -a sleep 0"
 execute eval "sudo pmset -a hibernatemode 0"
 execute eval "sudo pmset -a disablesleep 1"
-exit
 # Set hostname
 if  [[ -n $hostname     ]]; then
 	#Set computer name (as done via System Preferences → Sharing)
