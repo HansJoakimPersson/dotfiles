@@ -57,8 +57,10 @@ readonly char_fail="✖"
 
 execute() {
 	printf '\n ⇒ %s ' "${@/eval/}"
-	if (true); then # ("*@ > /dev/null 2>&1") &
-		# spinner "$!"
+	if
+		("*@ > /dev/null 2>&1") &
+		spinner "$!"
+	then
 		ok
 	else
 		error
