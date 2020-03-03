@@ -49,9 +49,9 @@ readonly char_succ="✔"
 readonly char_fail="✖"
 
 execute() {
-	printf '\n ⇒ %s ' "${@/eval/}"
+	printf "\n ⇒ ${@/eval/} "
 	if
-		("*@ > /dev/null 2>&1") &
+		("$@ >/dev/null 2>&1") &
 		spinner "$!"
 	then
 		ok

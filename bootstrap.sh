@@ -56,9 +56,9 @@ readonly char_succ="✔"
 readonly char_fail="✖"
 
 execute() {
-	printf '\n ⇒ %s ' "${@/eval/}"
+	printf "\n ⇒ ${@/eval/} "
 	if
-		("*@ > /dev/null 2>&1") &
+		("$@ >/dev/null 2>&1") &
 		spinner "$!"
 	then
 		ok
@@ -121,17 +121,17 @@ done
 printf " \b"
 
 # If we're using APFS, make a snapshot before doing anything.
-if    [[ -n "$(  mount | grep '/ (apfs')" ]]; then
-	printf "\n\n${col_yellow}Taking local APFS snappshot${col_reset} "
-	execute eval "sudo tmutil localsnapshot"
-fi
+# if    [[ -n "$(  mount | grep '/ (apfs')" ]]; then
+# 	printf "\n\n${col_yellow}Taking local APFS snappshot${col_reset} "
+# 	execute eval "sudo tmutil localsnapshot"
+# fi
 
 # disable sleep
 printf "\n\n${col_yellow}Temporary disabling sleep${col_reset}"
 execute eval "sudo pmset -a sleep 0"
 execute eval "sudo pmset -a hibernatemode 0"
 execute eval "sudo pmset -a disablesleep 1"
-
+exit
 # Set hostname
 if  [[ -n $hostname     ]]; then
 	#Set computer name (as done via System Preferences → Sharing)
