@@ -56,7 +56,7 @@ readonly char_succ="✔"
 readonly char_fail="✖"
 
 execute() {
-	printf "\n ⇒ ${@/eval/} "
+	printf "\n ⇒ %s ${@/eval/} "
 	if
 		("$@ >/dev/null 2>&1") &
 		spinner "$!"
@@ -68,12 +68,11 @@ execute() {
 }
 
 spinner() {
-	local i sp n
-	sp="\|/-"
-	n=${#sp}
+	local i=0
+	local sp="\|/-"
+	local n=${#sp}
 	while ps a | awk '{print $1}' | grep -q "${1}"; do
 		sleep "0.75"
-		#printf "\b${sp:i++%${#sp}:1}"
 		printf "%s\b" "${sp:i++%n:1}"
 	done
 }
@@ -121,10 +120,10 @@ done
 printf " \b"
 
 # If we're using APFS, make a snapshot before doing anything.
-# if    [[ -n "$(  mount | grep '/ (apfs')" ]]; then
-# 	printf "\n\n${col_yellow}Taking local APFS snappshot${col_reset} "
-# 	execute eval "sudo tmutil localsnapshot"
-# fi
+ if    [[ -n "$(  mount | grep '/ (apfs')" ]]; then
+ 	printf "\n\n${col_yellow}Taking local APFS snappshot${col_reset} "
+ 	execute eval "sudo tmutil localsnapshot"
+ fi
 
 # disable sleep
 printf "\n\n${col_yellow}Temporary disabling sleep${col_reset}"
@@ -173,7 +172,7 @@ fi
 sh brew
 
 # Set up MacOS
-sh macos
+#sh macos
 
 # Adding dotfiles to home folder
 if  [[ $dotfiles =~ ^[y|yes|Y]$   ]]; then
@@ -188,7 +187,7 @@ if  [[ $dotfiles =~ ^[y|yes|Y]$   ]]; then
 		--exclude "LICENSE-MIT.txt" \
 		--filter="+ .*" \
 		--filter="- *" \
-		-avh --no-perms -c --backup --backup-dir="backup_$(date +"%Y-%m-%d %H.%M.%S")" . ~/dofiles
+		-avh --no-perms -c --backup --backup-dir="backup_$(date +"%Y-%m-%d %H.%M.%S")" . ~
 
 	printf "\n${col_yellow}Loading new .bash_profile${col_reset}"
 	execute eval "source ~/.bash_profile"
