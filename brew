@@ -49,7 +49,7 @@ readonly char_succ="✔"
 readonly char_fail="✖"
 
 execute() {
-	printf "\n ⇒ ${@/eval/} "
+	printf "\n ⇒ %s ${@/eval/}"
 	if
 		("$@ >/dev/null 2>&1") &
 		spinner "$!"
@@ -61,12 +61,11 @@ execute() {
 }
 
 spinner() {
-	local i sp n
-	sp="\|/-"
-	n=${#sp}
+	local i=0
+	local sp="\|/-"
+	local n=${#sp}
 	while ps a | awk '{print $1}' | grep -q "${1}"; do
 		sleep "0.75"
-		#printf "\b${sp:i++%${#sp}:1}"
 		printf "%s\b" "${sp:i++%n:1}"
 	done
 }
@@ -185,6 +184,7 @@ printf "\n\n${col_yellow}Installing some CTF and Forensics tools${col_reset}"
 
 # Install Java first to prevent packages that depends on it from failing
 execute eval "brew cask install adoptopenjdk"
+execute eval "brew install docker"
 
 # Install some CTF tools;
 execute eval "brew install aircrack-ng" #Java 1.8+ is required to install this forumula
@@ -279,6 +279,7 @@ execute eval "brew install zsh-completions"
 execute eval "brew install zsh-syntax-highlighting"
 
 # Fonts
+execute eval "brew tap homebrew/cask-fonts"
 execute eval "brew cask install font-hack-nerd-font"
 
 # Remove outdated versions from the cellar
@@ -297,6 +298,10 @@ execute eval "mas install 509733654" #"HashMaker"
 execute eval "mas install 1295203466" #"Microsoft Remote Desktop"
 execute eval "mas install 937984704" #"Amphetamine"
 execute eval "mas install 404010395" #"TextWrangler"
+
+# Gem packages
+printf "\n\n${col_yellow}Installing Gem packages${col_reset}"
+execute eval "gem install colorls"
 
 # Atom packages
 printf "\n\n${col_yellow}Installing Atom packages${col_reset}"
