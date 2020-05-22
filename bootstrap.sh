@@ -40,7 +40,7 @@ IFS=$'\n\t'
 
 # Set magic variables for current file, directory, os, etc.
 readonly _PROGFNAME=$(basename "${0}") # Set to the program's basename.
-readonly _PROGAUTH=""
+readonly _PROGAUTH="X"
 readonly _PROGDATE=$(stat -f "%Sm" "$0" 2>/dev/null)          # for MacOS
 
 # Reset
@@ -168,8 +168,8 @@ else
 	cd dotfiles
 fi
 
-# Install packages from homebrew
-sh brew
+# Install packages
+sh packages
 
 # Set up MacOS
 #sh macos

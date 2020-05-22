@@ -153,6 +153,7 @@ execute eval "brew install screen"
 execute eval "brew install gmp"
 
 # Install other useful binaries
+execute eval "brew install node"
 execute eval "brew install the_silver_searcher"
 execute eval "brew install fzf"
 execute eval "brew install git"
@@ -315,3 +316,6 @@ execute eval "gem install colorls"
 # execute eval "apm install minimap-find-and-replace"
 # execute eval "apm install minimap-split-diff"
 # execute eval "apm install split-diff"
+
+#Node packages
+npm i -g bash-language-server
