@@ -50,7 +50,7 @@ The creator of this repo is not responsible if your machine ends up in a state y
 ## Feedback
 
 Suggestions/improvements
-[welcome](https://github.com/mathiasbynens/dotfiles/issues)!
+[welcome](https://github.com/HansJoakimPersson/dotfiles/issues)!
 
 ## Thanks to…
 
