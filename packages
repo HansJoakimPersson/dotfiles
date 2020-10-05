@@ -274,6 +274,7 @@ execute eval "brew cask install qlprettypatch"
 execute eval "brew cask install WebPQuickLook"
 execute eval "brew cask install qlswift"
 execute eval "brew cask install betterzip"
+execute eval "brew cask install powershell"
 
 # zsh
 printf "\n\n${col_yellow}Installing zsh plugins${col_reset}"
