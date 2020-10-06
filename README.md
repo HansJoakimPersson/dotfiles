@@ -70,4 +70,4 @@ I first got the idea for starting this project by visiting the [Github does dotf
 
 ## License
 
-The MIT License. Please see [the license file](license.md) for more information.
+The MIT License. Please see [the license file](LICENSE.md) for more information.
