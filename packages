@@ -179,6 +179,7 @@ execute eval "brew install shfmt" # Autoformat shell script source code
 # Install multimedia tools
 execute eval "brew install ffmpeg"
 execute eval "brew install imagemagick"
+execute eval "brew install Soundflower" # Used to record internal sound https://github.com/mattingalls/Soundflower/releases/tag/2.0b2
 
 # Install some CTF and Forensics tools;
 printf "\n\n${col_yellow}Installing some CTF and Forensics tools${col_reset}"
