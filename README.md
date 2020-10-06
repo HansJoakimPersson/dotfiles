@@ -1,3 +1,8 @@
+![Lines of code](https://img.shields.io/tokei/lines/github/HansJoakimPersson/dotfiles)
+![GitHub](https://img.shields.io/github/license/HansJoakimPersson/dotfiles)
+[![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
+![GitHub last commit](https://img.shields.io/github/last-commit/HansJoakimPersson/dotfiles)
+
 # Dotfiles
 
 This repository works helps me configure and maintain my Mac. It simplifies the effort of install my preferred MacOS flavour manually. Feel free to explore, learn and copy parts to your own dotfiles. Enjoy! :smile:
