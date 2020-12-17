@@ -67,11 +67,19 @@ autoload -Uz compinit && compinit
 
 #	Autosuggestions
 #   ------------------------------------------------------------
-bindkey $'^[[A' up-line-or-search   # up arrow
-bindkey $'^[[B' down-line-or-search # down arrow
-source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+FILE=/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+if [ -f "$FILE" ]; then
+	bindkey $'^[[A' up-line-or-search   # up arrow
+	bindkey $'^[[B' down-line-or-search # down arrow
+	source "$FILE"
+fi
 
 #	Syntax highlighting
 #   ------------------------------------------------------------
-export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+FILE=/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+if [ -f "$FILE" ]; then
+	export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
+	source "$FILE"
+fi
