@@ -15,6 +15,8 @@
 #  8.  Utilities
 #
 #  ---------------------------------------------------------------------------
+ # Remove all previous aliases
+unalias -a
 
 #   -----------------------------
 #   1. MAKE TERMINAL BETTER
@@ -37,9 +39,16 @@ alias cp='cp -iv'       # Preferred 'cp' implementation
 alias mv='mv -iv'       # Preferred 'mv' implementation
 alias mkdir='mkdir -pv' # Preferred 'mkdir' implementation
 #alias ll='exa -alhG --group-directories-first'		# Preferred 'ls' implementation
-alias ls='colorls -A --light'                       # Preferred 'ls' implementation
-alias ll='colorls -l -A --light --report --sd --gs' # Preferred 'ls' implementation
-alias lr='colorls --tree --gs | less'               # Full Recursive Directory Listing
+
+if  command -v colorls &> /dev/null
+then
+ alias ls='colorls -A --light'                       # Preferred 'ls' implementation
+ alias ll='colorls -l -A --light --report --sd --gs' # Preferred 'ls' implementation
+ alias lr='colorls --tree --gs | less'               # Full Recursive Directory Listing
+fi
+
+
+
 alias less='less -FSRXc'                            # Preferred 'less' implementation
 
 #   Easier navigation: .., ..., ...., ....., ~ and -
