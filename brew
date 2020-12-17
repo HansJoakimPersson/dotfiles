@@ -88,7 +88,7 @@ printf "========================================================================
 # Ask for the administrator password upfront
 sudo -v
 
-# Keep-alive: update existing `sudo` time stamp until `.brew` has finished
+# Keep-alive: update existing `sudo` time stamp until `brew` has finished
 while true; do
 	sudo -n true
 	sleep 60
@@ -291,33 +291,11 @@ execute eval "brew cask install font-hack-nerd-font"
 printf "\n\n${col_yellow}Remove outdated versions${col_reset}"
 execute eval "brew cleanup"
 
-# Mac App Store
-printf "\n\n${col_yellow}Installing Mac App Store apps${col_reset}"
-# Install Mac App Store command-line interface
-execute eval "brew install mas"
-
-# Install Apps
-execute eval "mas install 442160987" #"Flycut"
-execute eval "mas install 638161122" #"YubiKey Personalization Tool"
-execute eval "mas install 509733654" #"HashMaker"
-execute eval "mas install 1295203466" #"Microsoft Remote Desktop"
-execute eval "mas install 937984704" #"Amphetamine"
-execute eval "mas install 404010395" #"TextWrangler"
 
 # Gem packages
 printf "\n\n${col_yellow}Installing Gem packages${col_reset}"
 execute eval "gem install colorls"
 
-# Atom packages
-# printf "\n\n${col_yellow}Installing Atom packages${col_reset}"
-# execute eval "apm install compare-files"
-# execute eval "apm install atom-beautify"
-# execute eval "apm install github-atom-light-syntax"
-# execute eval "apm install ide-json"
-# execute eval "apm install minimap"
-# execute eval "apm install minimap-find-and-replace"
-# execute eval "apm install minimap-split-diff"
-# execute eval "apm install split-diff"
 
 #Node packages
 npm i -g bash-language-server
