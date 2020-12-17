@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2059
+
+###############################################################################
+# Strict Mode
+###############################################################################
+# Set strict mode -  via http://redsymbol.net/articles/unofficial-bash-strict-mode/
+# Return value of a pipeline is the value of the last (rightmost) command to
+# exit with a non-zero status, or zero if all commands in the pipeline exit
+# successfully.
+
+# Print a helpful message if a pipeline with non-zero exit code causes the
+# script to exit as described above.
+#trap 'echo "Aborting due to errexit on line $LINENO. Exit code: $?" >&2' ERR
+
+# Exit immediately if a pipeline returns non-zero.
+# Append "|| true" if you expect an error.
+set -o errexit
+# Allow the above trap be inherited by all functions in the script.
+# Exit on error inside any functions or subshells.
+set -o errtrace
+# Do not allow use of undefined vars. Use ${VAR:-} to use an undefined VAR
+set -o nounset
+# Return value of a pipeline is the value of the last (rightmost) command to
+# exit with a non-zero status, or zero if all commands in the pipeline exit
+# successfully.
+set -o pipefail
+# Turn on traces, useful while debugging but commented out by default
+#set -o xtrace
+
+# Set $IFS to only newline and tab.
+#
+# http://www.dwheeler.com/essays/filenames-in-shell.html
+IFS=$'\n\t'
+
+###############################################################################
+# Globals
+###############################################################################
+# Reset
+readonly col_reset="\x1b[0m" # Text Reset
+
+# Foreground color
+readonly col_green="\x1b[32m"
+readonly col_yellow="\x1b[33m"
+readonly col_red="\x1b[31m"
+
+# Special characters
+readonly char_succ="✔"
+readonly char_fail="✖"
+
+execute() {
+	printf "\n ⇒ %s ${@/eval/}"
+	if
+		("$@ >/dev/null 2>&1") &
+		spinner "$!"
+	then
+		ok
+	else
+		error
+	fi
+}
+
+spinner() {
+	local i=0
+	local sp="\|/-"
+	local n=${#sp}
+	while ps a | awk '{print $1}' | grep -q "${1}"; do
+		sleep "0.75"
+		printf "%s\b" "${sp:i++%n:1}"
+	done
+}
+error() {
+	printf "${col_red}${char_fail}${col_reset}"
+}
+
+ok() {
+	printf "${col_green}${char_succ}${col_reset}"
+}
+
+###############################################################################
+# Main script
+###############################################################################
+
+printf "\n\n================================================================================\n"
+printf "=                         Installing MAS packages...                           =\n"
+printf "================================================================================\n"
+
+# Ask for the administrator password upfront
+sudo -v
+
+# Keep-alive: update existing `sudo` time stamp until `.packages` has finished
+while true; do
+	sudo -n true
+	sleep 60
+	kill -0 "$$" || exit
+done 2>/dev/null &
+
+# Mac App Store
+printf "\n\n${col_yellow}Installing Mac App Store apps${col_reset}"
+# Install Mac App Store command-line interface
+execute eval "brew install mas"
+
+# Install Apps
+#execute eval "mas install 442160987" #"Flycut"
+#execute eval "mas install 638161122" #"YubiKey Personalization Tool"
+execute eval "mas install 509733654" #"HashMaker"
+execute eval "mas install 1295203466" #"Microsoft Remote Desktop"
+execute eval "mas install 937984704" #"Amphetamine"
+execute eval "mas install 404010395" #"TextWrangler"
