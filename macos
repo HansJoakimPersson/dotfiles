@@ -43,36 +43,15 @@ IFS=$'\n\t'
 readonly col_reset="\x1b[0m" # Text Reset
 
 # Foreground color
+readonly col_red="\x1b[31m"
 readonly col_green="\x1b[32m"
 readonly col_yellow="\x1b[33m"
-readonly col_red="\x1b[31m"
+
 
 # Special characters
 readonly char_succ="✔"
 readonly char_fail="✖"
 
-execute() {
-	printf "\n ⇒ %s ${@/eval/}"
-	if
-		("$@ ") &
-		#("$@ >/dev/null 2>&1") &
-		spinner "$!"
-	then
-		ok
-	else
-		error
-	fi
-}
-
-spinner() {
-	local i=0
-	local sp="\|/-"
-	local n=${#sp}
-	while ps a | awk '{print $1}' | grep -q "${1}"; do
-		sleep "0.75"
-		printf "%s\b" "${sp:i++%n:1}"
-	done
-}
 error() {
 	printf "${col_red}${char_fail}${col_reset}"
 }
@@ -93,6 +72,12 @@ while true; do
 	kill -0 "$$" || exit
 done 2>/dev/null &
 
+# If we're using APFS, make a snapshot before doing anything.
+ if    [[ -n "$(  mount | grep '/ (apfs')" ]]; then
+ 	printf "\n\n${col_yellow}Taking local APFS snappshot${col_reset} "
+ 	sudo tmutil localsnapshot
+ fi
+
 # Close any open System Preferences panes, to prevent them from overriding
 # settings we’re about to change
 printf "closing any system preferences to prevent issues with automated changes "
@@ -104,33 +89,33 @@ ok
 ###############################################################################
 
 #TODO: Appearance
-#execute eval "defaults write -g AppleInterfaceStyle -string \"Dark\""
-#execute eval "defaults write -g AppleInterfaceStyleSwitchesAutomatically -int 1
+#sudo defaults write -g AppleInterfaceStyle -string "Dark"
+#sudo defaults write -g AppleInterfaceStyleSwitchesAutomatically -int 1
 
 # Accent colour
-execute eval "defaults write -g AppleAccentColor -int -1" #Graphite
+sudo defaults write -g AppleAccentColor -int -1 #Graphite
 
 # Highlight colour
-execute eval "defaults write -g AppleHighlightColor -string \"0.847059 0.847059 0.862745 Graphite\""
+sudo defaults write -g AppleHighlightColor -string "0.847059 0.847059 0.862745 Graphite"
 
 # Sidebar icon size
 # Possible values: 1=small, 2=medium, 3=large
-execute eval "defaults write -g NSTableViewDefaultSizeMode -int 2"
+sudo defaults write -g NSTableViewDefaultSizeMode -int 2
 
 # Automatically show and hide menu bar
-execute eval "defaults write -g _HIHideMenuBar -int 0"
+sudo defaults write -g _HIHideMenuBar -int 0
 
 # Show scroll bars
 # Possible values: `WhenScrolling`, `Automatic` and `Always`
-execute eval "defaults write -g AppleShowScrollBars -string \"Automatic\""
+sudo defaults write -g AppleShowScrollBars -string "Automatic"
 
 # Click in the scroll bar to: Jump to the spot that's clicked
-execute eval "defaults write -g AppleScrollerPagingBehavior -int 1"
+sudo defaults write -g AppleScrollerPagingBehavior -int 1
 
 # Change default browser
-# TODO: execute eval "defaults write -g NSPreferredWebServices
+# TODO: sudo defaults write -g NSPreferredWebServices
 # Set DuckDuckGo as the search engine
-# execute eval "defaults write -g NSPreferredWebServices {
+# sudo defaults write -g NSPreferredWebServices {
 # 	NSWebServicesProviderWebSearch = {
 # 		NSDefaultDisplayName = DuckDuckGo;
 # 		NSProviderIdentifier = 'com.duckduckgo';
@@ -138,108 +123,172 @@ execute eval "defaults write -g AppleScrollerPagingBehavior -int 1"
 # }"
 
 # Ask to keep changes when closing documents
-execute eval "defaults write -g NSCloseAlwaysConfirmsChanges -int 1"
+sudo defaults write -g NSCloseAlwaysConfirmsChanges -int 1
 
 # Close windows when quitting an app
-execute eval "defaults write -g NSQuitAlwaysKeepsWindows -int 0"
+sudo defaults write -g NSQuitAlwaysKeepsWindows -int 0
 
 #TODO:  Recent items
 #TODO: Allow Handoff between this Mac and your iCloud devices
 #TODO: Use font smoothing when available, these dont work on catalina
 # Re-enable subpixel antialiasing
 #Use font smoothing when available
-execute eval "defaults write -g CGFontRenderingFontSmoothingDisabled -int 0"
+sudo defaults write -g CGFontRenderingFontSmoothingDisabled -int 0
 
 # Enable medium font smoothing subpixel font rendering on non-Apple LCDs
 # Reference: https://github.com/kevinSuttle/macOS-Defaults/issues/17#issuecomment-266633501
-execute eval "defaults write -g AppleFontSmoothing -int 2"
+sudo defaults write -g AppleFontSmoothing -int 2
+
+# Menu bar: hide the User icons
+#TODO
+for domain in ~/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
+   sudo defaults write "${domain}" dontAutoLoad -array \
+      "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" \
+      #"/System/Library/CoreServices/Menu Extras/Volume.menu" \
+      #"/System/Library/CoreServices/Menu Extras/User.menu"
+done
+sudo defaults write com.apple.systemuiserver menuExtras -array \
+   "/System/Library/CoreServices/Menu Extras/TimeMachine.menu" \
+   "/System/Library/CoreServices/Menu Extras/AirPort.menu" \
+   "/System/Library/CoreServices/Menu Extras/Battery.menu" \
+   "/System/Library/CoreServices/Menu Extras/Clock.menu"
 
 ###############################################################################
 # System preferences -> Desktop & Screen Saver                                #
 ###############################################################################
 
-#screen savers
-execute eval "defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName \"Computer Name\" path \"/System/Library/Frameworks/ScreenSaver.framework/PlugIns/Computer Name.appex\" type 0"
-execute eval "defaults -currentHost write com.apple.ScreenSaver.Computer-Name MESSAGE \"This MacBook Belongs to XX\""
+#sudo defaults write /Library/Preferences/com.apple.screensaver loginWindowIdleTime 300
+#sudo defaults write /Library/Preferences/com.apple.screensaver loginWindowModulePath "/System/Libr"
+
+#sudo defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName "Computer Name" path "/System/Library/Frameworks/ScreenSaver.framework/Resources/Computer Name.saver" type "0"
+#sudo defaults -currentHost write com.apple.screensaver idleTime 0
+
+#sudo defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName "Computer Name" path "/System/Library/Frameworks/ScreenSaver.framework/PlugIns/Computer Name.appex" type "0"
+#sudo defaults -currentHost write com.apple.ScreenSaver.Basic MESSAGE "Thanks for finding my MacBook! Please call +46 76-279 68 08"
 
 #Start after
-execute eval "defaults -currentHost write com.apple.screensaver idleTime -int 1200"
+defaults -currentHost write com.apple.screensaver idleTime -int 1200
 
 #Show with clock
-execute eval "defaults -currentHost write com.apple.screensaver showClock -int 1"
+defaults -currentHost write com.apple.screensaver showClock -bool true
 
 ###############################################################################
 # System preferences -> Dock                                                  #
 ###############################################################################
+# Show only open applications in the Dock, in this case it's used to "clean" the dock
+defaults write com.apple.dock static-only -bool true; killall Dock
+
+# Lets reset the behaviour from above since it breaks recent download stack
+defaults write com.apple.dock static-only -bool false; killall Dock
 
 # Size, Set the icon size of Dock items to 49 pixels
-execute eval "defaults write com.apple.dock tilesize -int 49"
+defaults write com.apple.dock tilesize -int 49
 
 # Magnification
-execute eval "defaults write com.apple.dock magnification -bool YES"
+defaults write com.apple.dock magnification -int 1
 
 # Icon size of magnified Dock items
-execute eval "defaults write com.apple.dock largesize -int 64"
+defaults write com.apple.dock largesize -int 64
 
 #Minimise windows using
-#execute eval "defaults write com.apple.dock mineffect -string "scale""
+#defaults write com.apple.dock mineffect -string "scale"
 
 #Minimise windows into application icon
-execute eval "defaults write com.apple.dock minimize-to-application -bool YES"
+defaults write com.apple.dock minimize-to-application -int 1
 
 #Animate opening applications
-#execute eval "defaults write com.apple.dock launchanim -bool NO"
+defaults write com.apple.dock launchanim -bool true
 
 #Automatically hide and show the Dock
-#execute eval "defaults write com.apple.dock autohide -bool YES"
+defaults write com.apple.dock autohide -int 0
 
 # Remove the auto-hiding Dock delay
-#execute eval "defaults write com.apple.dock autohide-delay -float 0"
+#defaults write com.apple.dock autohide-delay -float 0
 
 # Remove the animation when hiding/showing the Dock
-#execute eval "defaults write com.apple.dock autohide-time-modifier -float 0"
+#defaults write com.apple.dock autohide-time-modifier -float 0
 
 #Show indicators for open applications
-execute eval "defaults write com.apple.dock show-process-indicators -bool YES"
+defaults write com.apple.dock show-process-indicators -bool true
 
 #Show recent applications in Dock
-execute eval "defaults write com.apple.dock show-recents -bool YES"
-
-# Show only open applications in the Dock
-#execute eval "defaults write com.apple.dock static-only -bool YES"
+defaults write com.apple.dock show-recents -bool true
 
 # Enable highlight hover effect for the grid view of a stack (Dock)
-execute eval "defaults write com.apple.dock mouse-over-hilite-stack -bool YES"
+defaults write com.apple.dock mouse-over-hilite-stack -bool true
 
 # Enable spring loading for all Dock items
-execute eval "defaults write com.apple.dock enable-spring-load-actions-on-all-items -bool YES"
+defaults write com.apple.dock enable-spring-load-actions-on-all-items -bool true
 
 # Make Dock icons of hidden applications translucent
-execute eval "defaults write com.apple.dock showhidden -bool YES"
+defaults write com.apple.Dock showhidden -bool true
 
 # Add a spacer to the left side of the Dock (where the applications are)
-execute eval "defaults write com.apple.dock persistent-apps -array-add '{\"tile-type\"=\"spacer-tile\";}'"
+#defaults write com.apple.dock persistent-apps '{"tile-type"="spacer-tile";}'
 
 # Add a spacer to the right side of the Dock (where the Trash is)
-execute eval "defaults write com.apple.dock persistent-others -array-add '{\"tile-type\"=\"spacer-tile\";}'"
+#defaults write com.apple.dock persistent-others '{"tile-type"="spacer-tile";}'
+
+# Add Downloads folder to dock 
+defaults write com.apple.dock persistent-others -array \
+    '<dict>
+        <key>GUID</key><integer>562846286</integer>
+        <key>tile-type</key><string>directory-tile</string>
+        <key>tile-data</key><dict>
+			<key>arrangement</key><integer>2</integer>
+			<key>book</key><data>
+				Ym9va4wCAAAAAAQQMAAAAAAAAAAAAAAAAAAAAAAAAAAA
+				AAAAAAAAAAAAAAAAAAAAfAEAAAQAAAADAwAAAAAAIAUA
+				AAABAQAAVXNlcnMAAAAGAAAAAQEAAGpvYWtpbQAACQAA
+				AAEBAABEb3dubG9hZHMAAAAMAAAAAQYAABAAAAAgAAAA
+				MAAAAAgAAAAEAwAATVkAAAMAAAAIAAAABAMAALWFAAAD
+				AAAACAAAAAQDAADohQAAAwAAAAwAAAABBgAAWAAAAGgA
+				AAB4AAAACAAAAAAEAABBwd5EgAAAABgAAAABAgAAAgAA
+				AAAAAAAPAAAAAAAAAAAAAAAAAAAAAAAAAAEFAAAIAAAA
+				BAMAAAEAAAAAAAAABAAAAAMDAAD1AQAACAAAAAEJAABm
+				aWxlOi8vLwsAAAABAQAATWFjQm9vayBQcm8ACAAAAAQD
+				AAAAsO+TwwAAACQAAAABAQAAQ0U5NzkwNTEtQzlBMC0z
+				NUMyLUExNjItRDg2MEY1Nzg3NjY4GAAAAAECAACBAAAA
+				AQAAAO8TAAABAAAAAAAAAAAAAAABAAAAAQEAAC8AAADY
+				AAAA/v///wEAAAAAAAAAEQAAAAQQAABEAAAAAAAAAAUQ
+				AACIAAAAAAAAABAQAACsAAAAAAAAAEAQAACcAAAAAAAA
+				AAIgAABwAQAAAAAAAAUgAADwAAAAAAAAABAgAAAAAQAA
+				AAAAABEgAAAkAQAAAAAAABIgAAAUAQAAAAAAABMgAACc
+				AAAAAAAAACAgAABQAQAAAAAAADAgAADMAAAAAAAAAAHA
+				AADUAAAAAAAAABHAAAAgAAAAAAAAABLAAADkAAAAAAAA
+				AAHQAADMAAAAAAAAABDQAAAEAAAAAAAAAA==
+				</data>
+			<key>displayas</key><integer>0</integer>
+			<key>file-data</key><dict>
+				<key>_CFURLString</key><string>file:///Users/joakim/Downloads/</string>
+				<key>_CFURLStringType</key><integer>15</integer>
+			</dict>
+			<key>file-label</key><string>Downloads</string>
+			<key>file-mod-date</key><integer>30562387772950</integer>
+			<key>file-type</key><integer>2</integer>
+			<key>parent-mod-date</key><integer>71639454993747</integer>
+			<key>preferreditemsize</key><integer>-1</integer>
+			<key>showas</key><integer>1</integer>
+		</dict>
+    </dict>'
 
 ###############################################################################
 # System preferences -> Mission Control                                       #
 ###############################################################################
 
 # Automatically rearrange Spaces based on most recent use
-execute eval "defaults write com.apple.dock mru-spaces -bool NO"
+defaults write com.apple.dock mru-spaces -bool false
 
 #When switching to an application, switch to a Space with open windows for the application
 
 # Group windows by application
-execute eval "defaults write com.apple.dock expose-group-by-app -int 0"
+defaults write com.apple.dock expose-group-apps -bool false
 
 #Displays have separate Spaces
 #Keyboard and Mouse Shortcuts
 
 # Speed up Mission Control animations
-execute eval "defaults write com.apple.dock expose-animation-duration -float 0.1"
+defaults write com.apple.dock expose-animation-duration -float 0.1
 
 ###############################################################################
 # System preferences -> Language & Region                                     #
@@ -248,14 +297,14 @@ execute eval "defaults write com.apple.dock expose-animation-duration -float 0.1
 #Preferred languages
 # Note: if you’re in the US, replace $(     EUR) with $(USD), $(Centimeters) with
 # $(Inches), $(en_GB) with $(en_US), and $(true) with $(false).
-execute eval "defaults write -g AppleLanguages -array 'en-SE'"
-execute eval "defaults write -g AppleLocale -string 'en-SE'"
+defaults write -g AppleLanguages -array 'en-SE'
+defaults write -g AppleLocale -string 'en-SE'
 
 # Show language menu in the top right corner of the boot screen
-execute eval "defaults write com.apple.loginwindow showInputMenu -int 0"
+defaults write com.apple.loginwindow showInputMenu -int 0
 
 # Set the timezone; see $(sudo systemsetup -listtimezones) for other values
-execute eval "systemsetup -settimezone 'Europe/Brussels' >/dev/null"
+sudo systemsetup -settimezone 'Europe/Brussels' >/dev/null
 
 ###############################################################################
 # System preferences -> Security & Privacy                                    #
@@ -263,51 +312,50 @@ execute eval "systemsetup -settimezone 'Europe/Brussels' >/dev/null"
 
 #TODO: Don't sure this works
 # Require password... after sleep or screen saver begins
-execute eval "defaults write com.apple.screensaver askForPassword -int 1"
-execute eval "defaults write com.apple.screensaver askForPasswordDelay -int 0"
+sudo defaults write com.apple.screensaver askForPassword -int 1
+sudo defaults write com.apple.screensaver askForPasswordDelay -int 0
 
-#TODO: Don't sure this works
 #Show a message when the screen is locked
-execute eval "defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText -string \"This is a new message\""
+sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText -string "Thanks for finding my MacBook! Please call +46 (0) 76-279 68 08"
 
-# Turn On Firewall
-execute eval "/usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on"
+# Turn On Firewall 
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on > /dev/null 2>&1
 
 #Automatically allow built-in software to receive incoming connections
-execute eval "/usr/libexec/ApplicationFirewall/socketfilterfw --setallowsigned off"
-execute eval "/usr/libexec/ApplicationFirewall/socketfilterfw --setallowsignedapp off"
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsigned off > /dev/null 2>&1
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsignedapp off > /dev/null 2>&1
 
 #Enable stealth mode
-execute eval "/usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on"
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on > /dev/null 2>&1
 
 # Enable Firewall logging
-execute eval "/usr/libexec/ApplicationFirewall/socketfilterfw --setloggingmode on"
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setloggingmode on > /dev/null 2>&1
 
 ###############################################################################
 # System preferences -> Software Update                                       #
 ###############################################################################
 
 #Check for updates
-execute eval "defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -bool YES"
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -bool true
 
 #Download new updates when available
-execute eval "defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticDownload -bool YES"
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticDownload -bool true
 
 #Install macOS updates
-execute eval "defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticallyInstallMacOSUpdates -bool YES"
-execute eval "defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall -bool YES"
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticallyInstallMacOSUpdates -bool true
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall -bool true
 
 #Install app updates from the App Store
-execute eval "defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdate -bool YES"
+sudo defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdate -bool true
 
 #Install system data files and security updates
-execute eval "defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall -bool YES"
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall -bool true
 
 # Check for software updates daily, not just once per week
-execute eval "defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ScheduleFrequency -int 1"
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ScheduleFrequency -int 1
 
 # Allow the App Store to reboot machine on macOS updates
-execute eval "defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired -bool YES"
+sudo defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired -bool true
 
 ###############################################################################
 # System preferences -> Network                                       #
@@ -318,29 +366,32 @@ execute eval "defaults write /Library/Preferences/com.apple.commerce.plist AutoU
 ###############################################################################
 
 ###############################################################################
-# System preferences -> Sound                                       #
+# System preferences -> Sound                                                 #
 ###############################################################################
 
 # Increase sound quality for Bluetooth headphones/headsets
-execute eval "defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 40"
+sudo defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 40
 
 ###############################################################################
-# System preferences -> Keyboard                                       #
+# System preferences -> Keyboard                                              #
 ###############################################################################
 
 # Disable press-and-hold for keys in favor of key repeat
-execute eval "defaults write -g ApplePressAndHoldEnabled -bool NO"
+defaults write -g ApplePressAndHoldEnabled -bool false
 
 #Key Repeat, Delay Until Repeat
-execute eval "defaults write -g KeyRepeat -int 6"
-execute eval "defaults write -g InitialKeyRepeat -int 25"
+defaults write -g KeyRepeat -int 6
+defaults write -g InitialKeyRepeat -int 25
+
+#Use F1, F2, etc. keys as standard functions keys
+sudo defaults write -g com.apple.keyboard.fnState -int 1
 
 #Touch Bar shows
 #appWithControlStrip, fullControlStrip
-execute eval "defaults write com.apple.touchbar.agent PresentationModeGlobal appWithControlStrip"
+sudo defaults write com.apple.touchbar.agent PresentationModeGlobal appWithControlStrip
 
 #Customise Control Strip
-execute eval "defaults write com.apple.controlstrip { MiniCustomized = (
+sudo defaults write com.apple.controlstrip "{ MiniCustomized = (
   com.apple.system.brightness,
   com.apple.system.volume,
   com.apple.system.media-play-pause,
@@ -348,46 +399,46 @@ execute eval "defaults write com.apple.controlstrip { MiniCustomized = (
  ); }"
 
 #Correct spelling automatically
-execute eval "defaults write -g NSAutomaticSpellingCorrectionEnabled -bool NO"
+sudo defaults write -g NSAutomaticSpellingCorrectionEnabled -bool false
 
 #Capitalise words automatically
-execute eval "defaults write -g NSAutomaticCapitalizationEnabled -bool NO"
+sudo defaults write -g NSAutomaticCapitalizationEnabled -bool false
 
 #Add full stop with double-space
-execute eval "defaults write -g NSAutomaticPeriodSubstitutionEnabled -bool NO"
+sudo defaults write -g NSAutomaticPeriodSubstitutionEnabled -bool false
 
 #Use smart quotes and dashes
-execute eval "defaults write -g NSAutomaticQuoteSubstitutionEnabled -bool NO"
-execute eval "defaults write -g NSAutomaticDashSubstitutionEnabled -bool NO"
+sudo defaults write -g NSAutomaticQuoteSubstitutionEnabled -bool false
+sudo defaults write -g NSAutomaticDashSubstitutionEnabled -bool false
 
 #use keyboard navigation to move focus between controls
-execute eval "defaults write -g AppleKeyboardUIMode -int 3"
+sudo defaults write -g AppleKeyboardUIMode -int 3
 
-###############################################################################
-# System preferences -> Trackpad                                       #
-###############################################################################
+##############################################################################
+# System preferences -> Trackpad                                             #
+##############################################################################
 
 #Look up & data detectors
-execute eval "defaults -currentHost write -g com.apple.trackpad.threeFingerTapGesture -int 0"
+sudo defaults -currentHost write -g com.apple.trackpad.threeFingerTapGesture -int 0
 
 #Tap to click
-execute eval "defaults -currentHost write -g com.apple.mouse.tapBehavior -int 0"
+sudo defaults -currentHost write -g com.apple.mouse.tapBehavior -int 0
 
 #Scroll direction: Natural
-execute eval "defaults -currentHost write -g com.apple.swipescrolldirection -int 0"
+sudo defaults -currentHost write -g com.apple.swipescrolldirection -int 0
 
 #Notification Centre
-execute eval "defaults -currentHost write -g com.apple.trackpad.twoFingerFromRightEdgeSwipeGesture -int 0"
+sudo defaults -currentHost write -g com.apple.trackpad.twoFingerFromRightEdgeSwipeGesture -int 0
 
 ###############################################################################
-# System preferences -> Displays                                       #
+# System preferences -> Displays                                              #
 ###############################################################################
 
 #Resolution
 #TODO:
 
 # Enable HiDPI display modes (requires restart)
-execute eval "defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool YES"
+sudo defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
 
 ###############################################################################
 # System preferences -> Energy Saver                                          #
@@ -399,7 +450,7 @@ execute eval "defaults write /Library/Preferences/com.apple.windowserver Display
 ###############################################################################
 
 # Prevent Time Machine from prompting to use new hard drives as backup volume
-execute eval "defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool YES"
+sudo defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
 # Disable local Time Machine backups
 #hash tmutil &> /dev/null && sudo tmutil disablelocal
@@ -409,84 +460,84 @@ execute eval "defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -
 ###############################################################################
 
 # Show these items on the desktop
-execute eval "defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool NO"
-execute eval "defaults write com.apple.finder ShowHardDrivesOnDesktop -bool NO"
-execute eval "defaults write com.apple.finder ShowMountedServersOnDesktop -bool NO"
-execute eval "defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool NO"
+sudo defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
+sudo defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
+sudo defaults write com.apple.finder ShowMountedServersOnDesktop -bool false
+sudo defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false
 
 # New Finder windows show
 # For other paths, use $(PfLo) and $(file:///full/path/here/)
-execute eval "defaults write com.apple.finder NewWindowTarget -string 'PfDe'"
-execute eval "defaults write com.apple.finder NewWindowTargetPath -string 'file://${HOME}/Desktop/'"
+sudo defaults write com.apple.finder NewWindowTarget -string 'PfDe'
+sudo defaults write com.apple.finder NewWindowTargetPath -string 'file://${HOME}/Desktop/'
 
 # Recent tags
-execute eval "defaults write com.apple.finder ShowRecentTags -bool NO"
+sudo defaults write com.apple.finder ShowRecentTags -bool false
 
 # Show all filename extensions
-execute eval "defaults write -g AppleShowAllExtensions -bool YES"
+sudo defaults write -g AppleShowAllExtensions -bool true
 
 # Show warning before changing a extension
-execute eval "defaults write com.apple.finder FXEnableExtensionChangeWarning -bool YES"
+sudo defaults write com.apple.finder FXEnableExtensionChangeWarning -bool true
 
 # Show warning before removing from iCloud Drive
-execute eval "defaults write com.apple.finder FXEnableRemoveFromICloudDriveWarning -bool YES"
+sudo defaults write com.apple.finder FXEnableRemoveFromICloudDriveWarning -bool true
 
 # Show warning before emptying the Trash
-execute eval "defaults write com.apple.finder WarnOnEmptyTrash -bool YES"
+sudo defaults write com.apple.finder WarnOnEmptyTrash -bool true
 
 # Empty Trash securely by default
-execute eval "defaults write com.apple.finder EmptyTrashSecurely -bool YES"
+sudo defaults write com.apple.finder EmptyTrashSecurely -bool true
 
 # Remove itoms from the Bin after 30 days
-execute eval "defaults write com.apple.finder FXRemoveOldTrashItems -bool YES"
+sudo defaults write com.apple.finder FXRemoveOldTrashItems -bool true
 
 # Keep folders on top
-execute eval "defaults write com.apple.finder _FXSortFoldersFirst -bool YES"
+sudo defaults write com.apple.finder _FXSortFoldersFirst -bool true
 
 # When performing a search, search the current folder by default
-execute eval "defaults write com.apple.finder FXDefaultSearchScope -string 'SCcf'"
+sudo defaults write com.apple.finder FXDefaultSearchScope -string 'SCcf'
 
 # as list view in all Finder windows by default
 # Four-letter codes for the other view modes: $(icnv), $(clmv), $(glyv)
-execute eval "defaults write com.apple.finder FXPreferredViewStyle -string 'Nlsv'"
+sudo defaults write com.apple.finder FXPreferredViewStyle -string 'Nlsv'
 
 # Show status bar
-execute eval "defaults write com.apple.finder ShowStatusBar -bool YES"
+sudo defaults write com.apple.finder ShowStatusBar -bool true
 
 # Show path bar
-execute eval "defaults write com.apple.finder ShowPathbar -bool YES"
+sudo defaults write com.apple.finder ShowPathbar -bool true
 
 # Finder: allow quitting via ⌘ + Q; doing so will also hide desktop icons
-execute eval "defaults write com.apple.finder QuitMenuItem -bool YES"
+sudo defaults write com.apple.finder QuitMenuItem -bool true
 
 # Finder: disable window animations and Get Info animations
-execute eval "defaults write com.apple.finder DisableAllAnimations -bool YES"
+sudo defaults write com.apple.finder DisableAllAnimations -bool true
 
 # Finder: show hidden files by default
-execute eval "defaults write com.apple.finder AppleShowAllFiles -bool YES"
+sudo defaults write com.apple.finder AppleShowAllFiles -bool true
 
 # Display full POSIX path as Finder window title
-execute eval "defaults write com.apple.finder _FXShowPosixPathInTitle -bool YES"
+sudo defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 
 # Enable spring loading for directories
-execute eval "defaults write -g com.apple.springing.enabled -bool YES"
+sudo defaults write -g com.apple.springing.enabled -bool true
 
 # Remove the spring loading delay for directories
-execute eval "defaults write -g com.apple.springing.delay -float 0.2"
+sudo defaults write -g com.apple.springing.delay -float 0.2
 
 # Avoid creating .DS_Store files on network or USB volumes
-execute eval "defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool YES"
-execute eval "defaults write com.apple.desktopservices DSDontWriteUSBStores -bool YES"
+sudo defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+sudo defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
 # Disable disk image verification
-#execute eval "defaults write com.apple.frameworks.diskimages skip-verify -bool YES"
-#execute eval "defaults write com.apple.frameworks.diskimages skip-verify-locked -bool YES"
-#execute eval "defaults write com.apple.frameworks.diskimages skip-verify-remote -bool YES"
+#sudo defaults write com.apple.frameworks.diskimages skip-verify -bool true
+#sudo defaults write com.apple.frameworks.diskimages skip-verify-locked -bool true
+#sudo defaults write com.apple.frameworks.diskimages skip-verify-remote -bool true
 
 # Automatically open a new Finder window when a volume is mounted
-#execute eval "defaults write com.apple.frameworks.diskimages auto-open-ro-root -bool YES"
-#execute eval "defaults write com.apple.frameworks.diskimages auto-open-rw-root -bool YES"
-#execute eval "defaults write com.apple.finder OpenWindowForNewRemovableDisk -bool YES"
+#sudo defaults write com.apple.frameworks.diskimages auto-open-ro-root -bool true
+#sudo defaults write com.apple.frameworks.diskimages auto-open-rw-root -bool true
+#sudo defaults write com.apple.finder OpenWindowForNewRemovableDisk -bool true
 
 # Show item info near icons on the desktop and in other icon views
 /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:showItemInfo true" ~/Library/Preferences/com.apple.finder.plist
@@ -508,13 +559,13 @@ execute eval "defaults write com.apple.desktopservices DSDontWriteUSBStores -boo
 /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 80" ~/Library/Preferences/com.apple.finder.plist
 
 # Enable AirDrop over Ethernet and on unsupported Macs running Lion
-execute eval "defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool YES"
+sudo defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool true
 
 # Show the ~/Library folder
-execute eval "chflags nohidden ~/Library"
+#TODO  chflags nohidden ~/Library && xattr -d com.apple.FinderInfo ~/Library
 
 # Show the /Volumes folder
-execute eval "chflags nohidden /Volumes"
+#TODO chflags nohidden /Volumes
 
 # Remove Dropbox’s green checkmark icons in Finder
 #file=/Applications/Dropbox.app/Contents/Resources/emblem-dropbox-uptodate.icns
@@ -522,124 +573,124 @@ execute eval "chflags nohidden /Volumes"
 
 # Expand the following File Info panes:
 # “General”, “Open with”, and “Sharing & Permissions”
-execute eval "defaults write com.apple.finder FXInfoPanesExpanded -dict \
-	General -bool YES \
-	OpenWith -bool YES \
-	Privileges -bool YES"
+sudo defaults write com.apple.finder FXInfoPanesExpanded -dict \
+	General -bool true \
+	OpenWith -bool true \
+	Privileges -bool true
 
 # Expand save panel by default
-execute eval "defaults write -g NSNavPanelExpandedStateForSaveMode -bool YES"
-execute eval "defaults write -g NSNavPanelExpandedStateForSaveMode2 -bool YES"
+sudo defaults write -g NSNavPanelExpandedStateForSaveMode -bool true
+sudo defaults write -g NSNavPanelExpandedStateForSaveMode2 -bool true
 
 # Expand print panel by default
-execute eval "defaults write -g PMPrintingExpandedStateForPrint -bool YES"
-execute eval "defaults write -g PMPrintingExpandedStateForPrint2 -bool YES"
+sudo defaults write -g PMPrintingExpandedStateForPrint -bool true
+sudo defaults write -g PMPrintingExpandedStateForPrint2 -bool true
 
 # Save to disk (not to iCloud) by default
-execute eval "defaults write -g NSDocumentSaveNewDocumentsToCloud -bool NO"
+sudo defaults write -g NSDocumentSaveNewDocumentsToCloud -bool false
 
 # Automatically quit printer app once the print jobs complete
-execute eval "defaults write com.apple.print.PrintingPrefs 'Quit When Finished' -bool YES"
+sudo defaults write com.apple.print.PrintingPrefs 'Quit When Finished' -bool true
 
 # Disable the “Are you sure you want to open this application?” dialog
-execute eval "defaults write com.apple.LaunchServices LSQuarantine -bool NO"
+sudo defaults write com.apple.LaunchServices LSQuarantine -bool false
 
 # Display ASCII control characters using caret notation in standard text views
 # Try e.g. `cd /tmp; unidecode "\x{0000}" > cc.txt; open -e cc.txt`
-execute eval "defaults write -g NSTextShowsControlCharacters -bool YES"
+sudo defaults write -g NSTextShowsControlCharacters -bool true
 
 ###############################################################################
 # Safari & WebKit                                                             #
 ###############################################################################
 
 # Privacy: don’t send search queries to Apple
-execute eval "defaults write com.apple.Safari UniversalSearchEnabled -bool NO"
-execute eval "defaults write com.apple.Safari SuppressSearchSuggestions -bool YES"
+sudo defaults write com.apple.Safari UniversalSearchEnabled -bool false
+sudo defaults write com.apple.Safari SuppressSearchSuggestions -bool true
 
 # Press Tab to highlight each item on a web page
-execute eval "defaults write com.apple.Safari WebKitTabToLinksPreferenceKey -bool YES"
-execute eval "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks -bool YES"
+sudo defaults write com.apple.Safari WebKitTabToLinksPreferenceKey -bool true
+sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks -bool true
 
 # Show the full URL in the address bar (note: this still hides the scheme)
-execute eval "defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool YES"
+sudo defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
 
 # Set Safari’s home page to `about:blank` for faster loading
-execute eval "defaults write com.apple.Safari HomePage -string 'about:blank'"
+sudo defaults write com.apple.Safari HomePage -string 'about:blank'
 
 # Prevent Safari from opening ‘safe’ files automatically after downloading
-execute eval "defaults write com.apple.Safari AutoOpenSafeDownloads -bool NO"
+sudo defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
 
 # Allow hitting the Backspace key to go to the previous page in history
-execute eval "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2BackspaceKeyNavigationEnabled -bool YES"
+sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2BackspaceKeyNavigationEnabled -bool true
 
 # Hide Safari’s bookmarks bar by default
-execute eval "defaults write com.apple.Safari ShowFavoritesBar -bool NO"
+sudo defaults write com.apple.Safari ShowFavoritesBar -bool false
 
 # Hide Safari’s sidebar in Top Sites
-execute eval "defaults write com.apple.Safari ShowSidebarInTopSites -bool NO"
+sudo defaults write com.apple.Safari ShowSidebarInTopSites -bool false
 
 # Disable Safari’s thumbnail cache for History and Top Sites
-execute eval "defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2"
+sudo defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2
 
 # Enable Safari’s debug menu
-execute eval "defaults write com.apple.Safari IncludeInternalDebugMenu -bool YES"
+sudo defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
 
 # Make Safari’s search banners default to Contains instead of Starts With
-execute eval "defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool NO"
+sudo defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
 
 # Remove useless icons from Safari’s bookmarks bar
-execute eval "defaults write com.apple.Safari ProxiesInBookmarksBar '()'"
+sudo defaults write com.apple.Safari ProxiesInBookmarksBar '()'
 
 # Enable the Develop menu and the Web Inspector in Safari
-execute eval "defaults write com.apple.Safari IncludeDevelopMenu -bool YES"
-execute eval "defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool YES"
-execute eval "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool YES"
+sudo defaults write com.apple.Safari IncludeDevelopMenu -bool true
+sudo defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
 
 # Add a context menu item for showing the Web Inspector in web views
-execute eval "defaults write -g WebKitDeveloperExtras -bool YES"
+sudo defaults write -g WebKitDeveloperExtras -bool true
 
 # Enable continuous spellchecking
-execute eval "defaults write com.apple.Safari WebContinuousSpellCheckingEnabled -bool YES"
+sudo defaults write com.apple.Safari WebContinuousSpellCheckingEnabled -bool true
 # Disable auto-correct
-execute eval "defaults write com.apple.Safari WebAutomaticSpellingCorrectionEnabled -bool NO"
+sudo defaults write com.apple.Safari WebAutomaticSpellingCorrectionEnabled -bool false
 
 # Disable AutoFill
-execute eval "defaults write com.apple.Safari AutoFillFromAddressBook -bool NO"
-execute eval "defaults write com.apple.Safari AutoFillPasswords -bool NO"
-execute eval "defaults write com.apple.Safari AutoFillCreditCardData -bool NO"
-execute eval "defaults write com.apple.Safari AutoFillMiscellaneousForms -bool NO"
+sudo defaults write com.apple.Safari AutoFillFromAddressBook -bool false
+sudo defaults write com.apple.Safari AutoFillPasswords -bool false
+sudo defaults write com.apple.Safari AutoFillCreditCardData -bool false
+sudo defaults write com.apple.Safari AutoFillMiscellaneousForms -bool false
 
 # Warn about fraudulent websites
-execute eval "defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool YES"
+sudo defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool true
 
 # Disable plug-ins
-execute eval "defaults write com.apple.Safari WebKitPluginsEnabled -bool NO"
-execute eval "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2PluginsEnabled -bool NO"
+sudo defaults write com.apple.Safari WebKitPluginsEnabled -bool false
+sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2PluginsEnabled -bool false
 
 # Disable Java
-execute eval "defaults write com.apple.Safari WebKitJavaEnabled -bool NO"
-execute eval "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabled -bool NO"
-execute eval "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabledForLocalFiles -bool NO"
+sudo defaults write com.apple.Safari WebKitJavaEnabled -bool false
+sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabled -bool false
+sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabledForLocalFiles -bool false
 
 # Block pop-up windows
-execute eval "defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool NO"
-execute eval "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool NO"
+sudo defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
+sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
 
 # Disable auto-playing video
-#execute eval "defaults write com.apple.Safari WebKitMediaPlaybackAllowsInline -bool NO"
-#execute eval "defaults write com.apple.SafariTechnologyPreview WebKitMediaPlaybackAllowsInline -bool NO"
-#execute eval "defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool NO"
-#execute eval "defaults write com.apple.SafariTechnologyPreview com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool NO"
+#sudo defaults write com.apple.Safari WebKitMediaPlaybackAllowsInline -bool false
+#sudo defaults write com.apple.SafariTechnologyPreview WebKitMediaPlaybackAllowsInline -bool false
+#sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool false
+#sudo defaults write com.apple.SafariTechnologyPreview com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool false
 
 # Enable “Do Not Track”
-execute eval "defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool YES"
+sudo defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
 
 # Update extensions automatically
-execute eval "defaults write com.apple.Safari InstallExtensionUpdatesAutomatically -bool YES"
+sudo defaults write com.apple.Safari InstallExtensionUpdatesAutomatically -bool true
 
 # Customise Safari toolbar items
 #TODO:
-# execute eval "defaults write com.apple.safari "NSToolbar Configuration BrowserToolbarIdentifier-v2" {
+# sudo defaults write com.apple.safari "NSToolbar Configuration BrowserToolbarIdentifier-v2" {
 #   "TB Default Item Identifiers" =     (
 #     BackForwardToolbarIdentifier,
 #     SidebarToolbarIdentifier,
@@ -667,25 +718,25 @@ execute eval "defaults write com.apple.Safari InstallExtensionUpdatesAutomatical
 ###############################################################################
 
 # Disable send and reply animations in Mail.app
-execute eval "defaults write com.apple.mail DisableReplyAnimations -bool YES"
-execute eval "defaults write com.apple.mail DisableSendAnimations -bool YES"
+sudo defaults write com.apple.mail DisableReplyAnimations -bool true
+sudo defaults write com.apple.mail DisableSendAnimations -bool true
 
 # Copy email addresses as `foo@example.com` instead of `Foo Bar <foo@example.com>` in Mail.app
-execute eval "defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool NO"
+sudo defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
 
 # Add the keyboard shortcut ⌘ + Enter to send an email in Mail.app
-execute eval "defaults write com.apple.mail NSUserKeyEquivalents -dict-add 'Send' -string @\U21a9"
+sudo defaults write com.apple.mail NSUserKeyEquivalents -dict-add 'Send' -string @\U21a9
 
 # Display emails in threaded mode, sorted by date (oldest at the top)
-execute eval "defaults write com.apple.mail DraftsViewerAttributes -dict-add 'DisplayInThreadedMode' -string 'yes'"
-execute eval "defaults write com.apple.mail DraftsViewerAttributes -dict-add 'SortedDescending' -string 'yes'"
-execute eval "defaults write com.apple.mail DraftsViewerAttributes -dict-add 'SortOrder' -string 'received-date'"
+sudo defaults write com.apple.mail DraftsViewerAttributes -dict-add 'DisplayInThreadedMode' -string 'yes'
+sudo defaults write com.apple.mail DraftsViewerAttributes -dict-add 'SortedDescending' -string 'yes'
+sudo defaults write com.apple.mail DraftsViewerAttributes -dict-add 'SortOrder' -string 'received-date'
 
 # Disable inline attachments (just show the icons)
-execute eval "defaults write com.apple.mail DisableInlineAttachmentViewing -bool YES"
+sudo defaults write com.apple.mail DisableInlineAttachmentViewing -bool true
 
 # Disable automatic spell checking
-execute eval "defaults write com.apple.mail SpellCheckingBehavior -string 'NoSpellCheckingEnabled'"
+sudo defaults write com.apple.mail SpellCheckingBehavior -string 'NoSpellCheckingEnabled'
 
 ###############################################################################
 # Spotlight                                                                   #
@@ -693,87 +744,45 @@ execute eval "defaults write com.apple.mail SpellCheckingBehavior -string 'NoSpe
 
 # Hide Spotlight tray-icon (and subsequent helper)
 #sudo chmod 600 /System/Library/CoreServices/Search.bundle/Contents/MacOS/Search
+
 # Disable Spotlight indexing for any volume that gets mounted and has not yet
 # been indexed before.
 # Use `sudo mdutil -i off "/Volumes/foo"` to stop indexing any volume.
-#sudo execute eval "defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
+#TODO sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
+
 # Change indexing order and disable some search results
-# Yosemite-specific search results (remove them if you are using macOS 10.9 or older):
-# 	MENU_DEFINITION
-# 	MENU_CONVERSION
-# 	MENU_EXPRESSION
-# 	MENU_SPOTLIGHT_SUGGESTIONS (send search queries to Apple)
-# 	MENU_WEBSEARCH             (send search queries to Apple)
-# 	MENU_OTHER
-# execute eval "defaults write com.apple.spotlight orderedItems -array \
-# 	{"enabled" = 1
-# "name"                  = "APPLICATIONS"
-# }'
-# 	'{"enabled" = 1
-# "name"                  = "SYSTEM_PREFS"
-# }' \
-# 	'{"enabled" = 1
-# "name"                  = "DIRECTORIES"
-# }' \
-# 	'{"enabled" = 1
-# "name"                  = "PDF"
-# }' \
-# 	'{"enabled" = 1
-# "name"                  = "FONTS"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "DOCUMENTS"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "MESSAGES"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "CONTACT"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "EVENT_TODO"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "IMAGES"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "BOOKMARKS"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "MUSIC"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "MOVIES"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "PRESENTATIONS"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "SPREADSHEETS"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "SOURCE"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "MENU_DEFINITION"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "MENU_OTHER"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "MENU_CONVERSION"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "MENU_EXPRESSION"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "MENU_WEBSEARCH"
-# }' \
-# 	'{"enabled" = 0
-# "name"                  = "MENU_SPOTLIGHT_SUGGESTIONS"
-# }"
-# Load new settings before rebuilding the index
-killall mds >/dev/null  2>&1
+# Yosemite-specific search results (remove them if your are using OS X 10.9 or older):
+#   MENU_DEFINITION
+#   MENU_CONVERSION
+#   MENU_EXPRESSION
+#   MENU_SPOTLIGHT_SUGGESTIONS (send search queries to Apple)
+#   MENU_WEBSEARCH             (send search queries to Apple)
+#   MENU_OTHER
+sudo defaults write com.apple.spotlight orderedItems -array \
+        '{"enabled" = 1;"name" = "APPLICATIONS";}' \
+        '{"enabled" = 1;"name" = "SYSTEM_PREFS";}' \
+        '{"enabled" = 1;"name" = "DIRECTORIES";}' \
+        '{"enabled" = 1;"name" = "PDF";}' \
+        '{"enabled" = 0;"name" = "FONTS";}' \
+        '{"enabled" = 1;"name" = "DOCUMENTS";}' \
+        '{"enabled" = 1;"name" = "MESSAGES";}' \
+        '{"enabled" = 1;"name" = "CONTACT";}' \
+        '{"enabled" = 0;"name" = "EVENT_TODO";}' \
+        '{"enabled" = 1;"name" = "IMAGES";}' \
+        '{"enabled" = 0;"name" = "BOOKMARKS";}' \
+        '{"enabled" = 0;"name" = "MUSIC";}' \
+        '{"enabled" = 0;"name" = "MOVIES";}' \
+        '{"enabled" = 0;"name" = "PRESENTATIONS";}' \
+        '{"enabled" = 0;"name" = "SPREADSHEETS";}' \
+        '{"enabled" = 1;"name" = "SOURCE";}' \
+        '{"enabled" = 0;"name" = "MENU_DEFINITION";}' \
+        '{"enabled" = 0;"name" = "MENU_OTHER";}' \
+        '{"enabled" = 0;"name" = "MENU_CONVERSION";}' \
+        '{"enabled" = 0;"name" = "MENU_EXPRESSION";}' \
+        '{"enabled" = 0;"name" = "MENU_WEBSEARCH";}' \
+        '{"enabled" = 0;"name" = "MENU_SPOTLIGHT_SUGGESTIONS";}'
+        # Load new settings before rebuilding the index
+sudo killall mds >/dev/null  2>&1
 # Make sure indexing is enabled for the main volume
 sudo mdutil -i on / >/dev/null
 # Rebuild the index from scratch
@@ -784,7 +793,7 @@ sudo mdutil -E / >/dev/null
 ###############################################################################
 
 # Only use UTF-8 in Terminal.app
-execute eval "defaults write com.apple.terminal StringEncodings -array 4"
+sudo defaults write com.apple.terminal StringEncodings -array 4
 
 # Use a modified version of the Solarized Dark theme by default in Terminal.app
 # osascript <<EOD
@@ -835,98 +844,114 @@ execute eval "defaults write com.apple.terminal StringEncodings -array 4"
 
 # Enable “focus follows mouse” for Terminal.app and all X11 apps
 # i.e. hover over a window and start typing in it without clicking first
-#execute eval "defaults write com.apple.terminal FocusFollowsMouse -bool YES"
-#execute eval "defaults write org.x.X11 wm_ffm -bool YES"
+#sudo defaults write com.apple.terminal FocusFollowsMouse -bool true
+#sudo defaults write org.x.X11 wm_ffm -bool true
 
 # Enable Secure Keyboard Entry in Terminal.app
 # See: https://security.stackexchange.com/a/47786/8918
-execute eval "defaults write com.apple.terminal SecureKeyboardEntry -bool YES"
+sudo defaults write com.apple.terminal SecureKeyboardEntry -bool true
 
 # Disable the annoying line marks
-execute eval "defaults write com.apple.Terminal ShowLineMarks -int 0"
+sudo defaults write com.apple.Terminal ShowLineMarks -int 0
 
 # Install the Solarized Dark theme for iTerm
 #TODO: open "${HOME}/init/Solarized Dark.itermcolors"
 
 # Don’t display the annoying prompt when quitting iTerm
-#execute eval "defaults write com.googlecode.iterm2 PromptOnQuit -bool NO"
+#sudo defaults write com.googlecode.iterm2 PromptOnQuit -bool false
 
 ###############################################################################
 # Activity Monitor                                                            #
 ###############################################################################
 
 # Show the main window when launching Activity Monitor
-execute eval "defaults write com.apple.ActivityMonitor OpenMainWindow -bool YES"
+defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
 
 # Visualize CPU usage in the Activity Monitor Dock icon
-execute eval "defaults write com.apple.ActivityMonitor IconType -int 5"
+defaults write com.apple.ActivityMonitor IconType -int 5
 
-# Show all processes in Activity Monitor
-execute eval "defaults write com.apple.ActivityMonitor ShowCategory -int 0"
+# Show processes in Activity Monitor
+# 100: All Processes
+# 101: All Processes, Hierarchally
+# 102: My Processes
+# 103: System Processes
+# 104: Other User Processes
+# 105: Active Processes
+# 106: Inactive Processes
+# 106: Inactive Processes
+# 107: Windowed Processes
+defaults write com.apple.ActivityMonitor ShowCategory -int 100
 
-# Set sort column
-execute eval "defaults write com.apple.ActivityMonitor UserColumnSortPerTab -dict \
-	'0' { direction = 0
-sort                        = CPUUsage
-}' \
-	'1' '{ direction = 0
-sort                        = ResidentSize
-}' \
-	'2' '{ direction = 0
-sort                        = 12HRPower
-}' \
-	'3' '{ direction = 0
-sort                        = bytesWritten
-}' \
-	'4' '{ direction = 0
-sort                        = rxBytes
-}"
-execute eval "defaults write com.apple.ActivityMonitor SortDirection -int 0"
+# Sort Activity Monitor results by CPU usage
+defaults write com.apple.ActivityMonitor SortColumn -string "CPUUsage"
+defaults write com.apple.ActivityMonitor SortDirection -int 0
+
+# Set columns for each tab
+defaults write com.apple.ActivityMonitor "UserColumnsPerTab v5.0" -dict \
+    '0' '( Command, CPUUsage, CPUTime, Threads, IdleWakeUps, PID, UID )' \
+    '1' '( Command, anonymousMemory, compressedMemory, ResidentSize, PurgeableMem, Threads, Ports, PID, UID)' \
+    '2' '( Command, PowerScore, 12HRPower, AppSleep, graphicCard, UID )' \
+    '3' '( Command, bytesWritten, bytesRead, Architecture, PID, UID )' \
+    '4' '( Command, txBytes, rxBytes, txPackets, rxPackets, PID, UID )'
+
+# Sort columns in each tab
+defaults write com.apple.ActivityMonitor UserColumnSortPerTab -dict \
+    '0' '{ direction = 0; sort = CPUUsage; }' \
+    '1' '{ direction = 0; sort = ResidentSize; }' \
+    '2' '{ direction = 0; sort = 12HRPower; }' \
+    '3' '{ direction = 0; sort = bytesWritten; }' \
+    '4' '{ direction = 0; sort = txBytes; }'
+
+# Update Frequency (in seconds)
+# 1: Very often (1 sec)
+# 2: Often (2 sec)
+# 5: Normally (5 sec)
+defaults write com.apple.ActivityMonitor UpdatePeriod -int 2
 
 # Show Data in the Disk graph (instead of IO)
-execute eval "defaults write com.apple.ActivityMonitor DiskGraphType -int 1"
+defaults write com.apple.ActivityMonitor DiskGraphType -int 1
 
 # Show Data in the Network graph (instead of packets)
-execute eval "defaults write com.apple.ActivityMonitor NetworkGraphType -int 1"
+defaults write com.apple.ActivityMonitor NetworkGraphType -int 1
 
 ###############################################################################
 # Address Book, Dashboard, iCal, TextEdit, and Disk Utility                   #
 ###############################################################################
 
 # Enable the debug menu in Address Book
-execute eval "defaults write com.apple.addressbook ABShowDebugMenu -bool YES"
+sudo defaults write com.apple.addressbook ABShowDebugMenu -bool true
 
 # Enable Dashboard dev mode (allows keeping widgets on the desktop)
-execute eval "defaults write com.apple.dashboard devmode -bool YES"
+sudo defaults write com.apple.dashboard devmode -bool true
 
 # Enable the debug menu in iCal (pre-10.8)
-execute eval "defaults write com.apple.iCal IncludeDebugMenu -bool YES"
+sudo defaults write com.apple.iCal IncludeDebugMenu -bool true
 
 # Use plain text mode for new TextEdit documents
-execute eval "defaults write com.apple.TextEdit RichText -int 0"
+sudo defaults write com.apple.TextEdit RichText -int 0
 # Open and save files as UTF-8 in TextEdit
-execute eval "defaults write com.apple.TextEdit PlainTextEncoding -int 4"
-execute eval "defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4"
+sudo defaults write com.apple.TextEdit PlainTextEncoding -int 4
+sudo defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
 
 # Enable the debug menu in Disk Utility
-execute eval "defaults write com.apple.DiskUtility DUDebugMenuEnabled -bool YES"
-execute eval "defaults write com.apple.DiskUtility advanced-image-options -bool YES"
+sudo defaults write com.apple.DiskUtility DUDebugMenuEnabled -bool true
+sudo defaults write com.apple.DiskUtility advanced-image-options -bool true
 
 # Auto-play videos when opened with QuickTime Player
-execute eval "defaults write com.apple.QuickTimePlayerX MGPlayMovieOnOpen -bool YES"
+sudo defaults write com.apple.QuickTimePlayerX MGPlayMovieOnOpen -bool true
 
 ###############################################################################
 # Mac App Store                                                               #
 ###############################################################################
 
 # Enable the WebKit Developer Tools in the Mac App Store
-execute eval "defaults write com.apple.appstore WebKitDeveloperExtras -bool YES"
+sudo defaults write com.apple.appstore WebKitDeveloperExtras -bool true
 
 # Enable Debug Menu in the Mac App Store
-execute eval "defaults write com.apple.appstore ShowDebugMenu -bool YES"
+sudo defaults write com.apple.appstore ShowDebugMenu -bool true
 
 # Automatically download apps purchased on other Macs
-#execute eval "defaults write com.apple.SoftwareUpdate ConfigDataInstall -int 1"
+#sudo defaults write com.apple.SoftwareUpdate ConfigDataInstall -int 1
 
 
 ###############################################################################
@@ -934,140 +959,140 @@ execute eval "defaults write com.apple.appstore ShowDebugMenu -bool YES"
 ###############################################################################
 
 # Prevent Photos from opening automatically when devices are plugged in
-execute eval "defaults write com.apple.ImageCapture disableHotPlug -bool YES"
+sudo defaults write com.apple.ImageCapture disableHotPlug -bool true
 
 ###############################################################################
 # Messages                                                                    #
 ###############################################################################
 
 # Disable automatic emoji substitution (i.e. use plain text smileys)
-execute eval "defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add 'automaticEmojiSubstitutionEnablediMessage' -bool NO"
+sudo defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add 'automaticEmojiSubstitutionEnablediMessage' -bool false
 
 # Disable smart quotes as it’s annoying for messages that contain code
-execute eval "defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add 'automaticQuoteSubstitutionEnabled' -bool NO"
+sudo defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add 'automaticQuoteSubstitutionEnabled' -bool false
 
 # Disable continuous spell checking
-execute eval "defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add 'continuousSpellCheckingEnabled' -bool NO"
+sudo defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add 'continuousSpellCheckingEnabled' -bool false
 
 ###############################################################################
 # Google Chrome & Google Chrome Canary                                        #
 ###############################################################################
 
 # Allow installing user scripts via GitHub Gist or Userscripts.org
-execute eval "defaults write com.google.Chrome ExtensionInstallSources -array 'https://gist.githubusercontent.com/' 'http://userscripts.org/*'"
-execute eval "defaults write com.google.Chrome.canary ExtensionInstallSources -array 'https://gist.githubusercontent.com/' 'http://userscripts.org/*'"
+sudo defaults write com.google.Chrome ExtensionInstallSources -array 'https://gist.githubusercontent.com/' 'http://userscripts.org/*'
+sudo defaults write com.google.Chrome.canary ExtensionInstallSources -array 'https://gist.githubusercontent.com/' 'http://userscripts.org/*'
 
 # Disable the all too sensitive backswipe on trackpads
-execute eval "defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool NO"
-execute eval "defaults write com.google.Chrome.canary AppleEnableSwipeNavigateWithScrolls -bool NO"
+sudo defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool false
+sudo defaults write com.google.Chrome.canary AppleEnableSwipeNavigateWithScrolls -bool false
 
 # Disable the all too sensitive backswipe on Magic Mouse
-execute eval "defaults write com.google.Chrome AppleEnableMouseSwipeNavigateWithScrolls -bool NO"
-execute eval "defaults write com.google.Chrome.canary AppleEnableMouseSwipeNavigateWithScrolls -bool NO"
+sudo defaults write com.google.Chrome AppleEnableMouseSwipeNavigateWithScrolls -bool false
+sudo defaults write com.google.Chrome.canary AppleEnableMouseSwipeNavigateWithScrolls -bool false
 
 # Use the system-native print preview dialog
-execute eval "defaults write com.google.Chrome DisablePrintPreview -bool YES"
-execute eval "defaults write com.google.Chrome.canary DisablePrintPreview -bool YES"
+sudo defaults write com.google.Chrome DisablePrintPreview -bool true
+sudo defaults write com.google.Chrome.canary DisablePrintPreview -bool true
 
 # Expand the print dialog by default
-execute eval "defaults write com.google.Chrome PMPrintingExpandedStateForPrint2 -bool YES"
-execute eval "defaults write com.google.Chrome.canary PMPrintingExpandedStateForPrint2 -bool YES"
+sudo defaults write com.google.Chrome PMPrintingExpandedStateForPrint2 -bool true
+sudo defaults write com.google.Chrome.canary PMPrintingExpandedStateForPrint2 -bool true
 
 ###############################################################################
 # GPGMail 2                                                                   #
 ###############################################################################
 
 # Disable signing emails by default
-execute eval "defaults write ~/Library/Preferences/org.gpgtools.gpgmail SignNewEmailsByDefault -bool NO"
+sudo defaults write ~/Library/Preferences/org.gpgtools.gpgmail SignNewEmailsByDefault -bool false
 
 ###############################################################################
 # Opera & Opera Developer                                                     #
 ###############################################################################
 
 # Expand the print dialog by default
-execute eval "defaults write com.operasoftware.Opera PMPrintingExpandedStateForPrint2 -boolean true"
-execute eval "defaults write com.operasoftware.OperaDeveloper PMPrintingExpandedStateForPrint2 -boolean true"
+sudo defaults write com.operasoftware.Opera PMPrintingExpandedStateForPrint2 -boolean true
+sudo defaults write com.operasoftware.OperaDeveloper PMPrintingExpandedStateForPrint2 -boolean true
 
 ###############################################################################
 # Transmission.app                                                            #
 ###############################################################################
 
 # Use `~/Documents/Torrents` to store incomplete downloads
-execute eval "defaults write org.m0k.transmission UseIncompleteDownloadFolder -bool YES"
-execute eval "defaults write org.m0k.transmission IncompleteDownloadFolder -string ${HOME}/Documents/Torrents"
+sudo defaults write org.m0k.transmission UseIncompleteDownloadFolder -bool true
+sudo defaults write org.m0k.transmission IncompleteDownloadFolder -string ${HOME}/Documents/Torrents
 
 # Use `~/Downloads` to store completed downloads
-execute eval "defaults write org.m0k.transmission DownloadLocationConstant -bool YES"
+sudo defaults write org.m0k.transmission DownloadLocationConstant -bool true
 
 # Don’t prompt for confirmation before downloading
-execute eval "defaults write org.m0k.transmission DownloadAsk -bool NO"
-execute eval "defaults write org.m0k.transmission MagnetOpenAsk -bool NO"
+sudo defaults write org.m0k.transmission DownloadAsk -bool false
+sudo defaults write org.m0k.transmission MagnetOpenAsk -bool false
 
 # Don’t prompt for confirmation before removing non-downloading active transfers
-execute eval "defaults write org.m0k.transmission CheckRemoveDownloading -bool YES"
+sudo defaults write org.m0k.transmission CheckRemoveDownloading -bool true
 
 # Trash original torrent files
-execute eval "defaults write org.m0k.transmission DeleteOriginalTorrent -bool YES"
+sudo defaults write org.m0k.transmission DeleteOriginalTorrent -bool true
 
 # Hide the donate message
-execute eval "defaults write org.m0k.transmission WarningDonate -bool NO"
+sudo defaults write org.m0k.transmission WarningDonate -bool false
 # Hide the legal disclaimer
-execute eval "defaults write org.m0k.transmission WarningLegal -bool NO"
+sudo defaults write org.m0k.transmission WarningLegal -bool false
 
 # IP block list.
 # Source: https://giuliomac.wordpress.com/2014/02/19/best-blocklist-for-transmission/
-execute eval "defaults write org.m0k.transmission BlocklistNew -bool YES"
-execute eval "defaults write org.m0k.transmission BlocklistURL -string 'http://john.bitsurge.net/public/biglist.p2p.gz'"
-execute eval "defaults write org.m0k.transmission BlocklistAutoUpdate -bool YES"
+sudo defaults write org.m0k.transmission BlocklistNew -bool true
+sudo defaults write org.m0k.transmission BlocklistURL -string 'http://john.bitsurge.net/public/biglist.p2p.gz'
+sudo defaults write org.m0k.transmission BlocklistAutoUpdate -bool true
 
 # Randomize port on launch
-execute eval "defaults write org.m0k.transmission RandomPort -bool YES"
+sudo defaults write org.m0k.transmission RandomPort -bool true
 
 ###############################################################################
 # Twitter.app                                                                 #
 ###############################################################################
 
 # Disable smart quotes as it’s annoying for code tweets
-execute eval "defaults write com.twitter.twitter-mac AutomaticQuoteSubstitutionEnabled -bool NO"
+sudo defaults write com.twitter.twitter-mac AutomaticQuoteSubstitutionEnabled -bool false
 
 # Show the app window when clicking the menu bar icon
-execute eval "defaults write com.twitter.twitter-mac MenuItemBehavior -int 1"
+sudo defaults write com.twitter.twitter-mac MenuItemBehavior -int 1
 
 # Enable the hidden ‘Develop’ menu
-execute eval "defaults write com.twitter.twitter-mac ShowDevelopMenu -bool YES"
+sudo defaults write com.twitter.twitter-mac ShowDevelopMenu -bool true
 
 # Open links in the background
-execute eval "defaults write com.twitter.twitter-mac openLinksInBackground -bool YES"
+sudo defaults write com.twitter.twitter-mac openLinksInBackground -bool true
 
 # Allow closing the ‘new tweet’ window by pressing `Esc`
-execute eval "defaults write com.twitter.twitter-mac ESCClosesComposeWindow -bool YES"
+sudo defaults write com.twitter.twitter-mac ESCClosesComposeWindow -bool true
 
 # Show full names rather than Twitter handles
-execute eval "defaults write com.twitter.twitter-mac ShowFullNames -bool YES"
+sudo defaults write com.twitter.twitter-mac ShowFullNames -bool true
 
 # Hide the app in the background if it’s not the front-most window
-execute eval "defaults write com.twitter.twitter-mac HideInBackground -bool YES"
+sudo defaults write com.twitter.twitter-mac HideInBackground -bool true
 
 ###############################################################################
 # Tweetbot.app                                                                #
 ###############################################################################
 
 # Bypass the annoyingly slow t.co URL shortener
-execute eval "defaults write com.tapbots.TweetbotMac OpenURLsDirectly -bool YES"
+sudo defaults write com.tapbots.TweetbotMac OpenURLsDirectly -bool true
 
 ###############################################################################
 # Flycut.app                                                                  #
 ###############################################################################
 
-execute eval "defaults write com.generalarcade.flycut menuIcon 3"
-execute eval "defaults write com.generalarcade.flycut loadOnStartup -bool YES"
-execute eval "defaults write com.generalarcade.flycut rememberNum -int 60"
-execute eval "defaults write com.generalarcade.flycut pasteMovesToTop -bool YES"
-execute eval "defaults write com.generalarcade.flycut removeDuplicates -bool YES"
+sudo defaults write com.generalarcade.flycut menuIcon 3
+sudo defaults write com.generalarcade.flycut loadOnStartup -bool true
+sudo defaults write com.generalarcade.flycut rememberNum -int 60
+sudo defaults write com.generalarcade.flycut pasteMovesToTop -bool true
+sudo defaults write com.generalarcade.flycut removeDuplicates -bool true
 
 ###############################################################################
-# Spotify.app
-# thinks it's super important and should always be started on login. Fuck that.                                                                #
+# Spotify.app                                                                 #
+# thinks it's super important and should always be started on login. Fuck that#                                                               #
 ###############################################################################
 
 mkdir -p ~/Library/Application\ Support/Spotify
@@ -1076,10 +1101,10 @@ echo 'app.autostart-mode="off"' >>~/Library/Application\ Support/Spotify/prefs
 echo 'app.autostart-banner-seen=true' >>~/Library/Application\ Support/Spotify/prefs
 
 ###############################################################################
-# VMware Fusion.app                                                                  #
+# VMware Fusion.app                                                           #       #
 ###############################################################################
                                                      #
-execute eval "defaults write com.vmware.fusion showStartMenu3 -bool NO"
+sudo defaults write com.vmware.fusion showStartMenu3 -bool false
 
 # ###########################################################
 # /etc/hosts -- spyware/ad blocking
@@ -1123,6 +1148,6 @@ for app in "Activity Monitor" \
 	"Tweetbot" \
 	"Twitter" \
 	"iCal"; do
-	killall "${app}" &>/dev/null
+	sudo killall "${app}" &>/dev/null
 done
-printf "Done. Note that some of these changes require a logout/restart to take effect."
+printf "Done! Note that some of these changes require a logout/restart to take effect.\n\n"
