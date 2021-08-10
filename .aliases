@@ -1,40 +1,22 @@
 #!/usr/bin/env sh
-
-# -----------------------------------------------------------------------------
-# 
-# Description:  This file holds all my aliases
-# 
-# Sections:
-# 1.  Make Terminal Better (remapping defaults and adding functionality)
-# 2.  File and Folder Management
-# 3.  Searching
-# 4.  Process Management
-# 5.  Networking
-# 6.  System Operations & Information
-# 7.  Web Development
-# 8.  Utilities
-# 9.  Bash only
-# 
-# -----------------------------------------------------------------------------
+# shellcheck shell=bash disable=SC1090,SC1091,SC2155,SC2164
 
 # Remove all previous aliases
 unalias -a
 
-# -----------------------------
-# 1. MAKE TERMINAL BETTER
-# -----------------------------
+#--- MAKE TERMINAL BETTER -----------------------------------------------------
 
 # List aliases
-alias ll='ls -AFhlpG'     # Preferred ls long format, excluding . and ..
-alias ls='ls -AF'         # Preferred 'ls' implementation
-alias ld='ld | grep "^d"' # List only directories
+alias ll='ls -AFhlpG --color=auto'     # Preferred ls long format, excluding . and ..
+alias ls='ls -AF --color=auto'         # Preferred 'ls' implementation
+alias ld='ld | grep "^d" --color=auto' # List only directories
 
 # Overwrite previous if we have lsd installed
-if command -v lsd &>/dev/null; then
-  alias ll='lsd -Ahl'             # Preferred 'ls long'  implementation
-  alias ls='lsd -A'               # Preferred 'ls' implementation
-  alias ld='lsd -Ahl | grep "^d"' #List only directories
-fi
+#if command -v lsd >/dev/null 2>&1 ; then
+#  alias ll='lsd -Ahl'             # Preferred 'ls long'  implementation
+#  alias ls='lsd -A'               # Preferred 'ls' implementation
+#  alias ld='lsd -Ahl | grep "^d"' #List only directories
+#fi
 
 # Easier navigation: .., ..., ...., ....., ~ and -
 alias cd..='cd ../'              # Go back 1 directory level (for fast typers)
@@ -46,10 +28,7 @@ alias .5='cd ../../../../../'    # Go back 5 directory levels
 alias .6='cd ../../../../../../' # Go back 6 directory levels
 alias ~="cd ~"                   # Go Home
 alias -- -="cd -"                # Go up one level
-cd() {                           # Always list directory contents upon 'cd'
-  builtin cd "$@"
-  ls
-}
+cd() { builtin cd "$@" && ls; }  # Always list directory contents upon 'cd'
 
 # Shortcuts
 alias dropbox="cd ~/Documents/Dropbox"
@@ -96,9 +75,7 @@ alias mv='mv -iv'        # Preferred 'mv' implementation
 alias mkdir='mkdir -pv'  # Preferred 'mkdir' implementation
 alias less='less -FSRXc' # Preferred 'less' implementation
 
-# -------------------------------
-# 2. FILE AND FOLDER MANAGEMENT
-# -------------------------------
+#--- FILE AND FOLDER MANAGEMENT -----------------------------------------------
 
 zipf() { zip -r "$1".zip "$1"; }                        # To create a ZIP archive of a folder
 alias numFiles='echo $(ls -1 | wc -l)'                  # Count of non-hidden files in current dir
@@ -113,9 +90,7 @@ command -v sha1sum >/dev/null || alias sha1sum="shasum" # macOS has no `sha1sum`
 # Usage: `mergepdf input{1,2,3}.pdf`
 alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.pdf'
 
-# ---------------------------
-# 3. SEARCHING
-# ---------------------------
+#--- SEARCHING ----------------------------------------------------------------
 
 alias qfind="find . -name " # qfind:    Quickly search for file
 
@@ -124,9 +99,7 @@ alias qfind="find . -name " # qfind:    Quickly search for file
 # find . -name .gitattributes | map dirname
 alias map="xargs -n1"
 
-# ---------------------------
-# 4. PROCESS MANAGEMENT
-# ---------------------------
+#--- PROCESS MANAGEMENT -------------------------------------------------------
 
 # the "kp" alias ("que pasa"), in honor of tony p.
 alias kp="ps auxwww"
@@ -152,9 +125,7 @@ alias ttop="top -R -F -s 10 -o rsize"
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
-# ---------------------------
-# 5. NETWORKING
-# ---------------------------
+#--- NETWORKING ---------------------------------------------------------------
 
 alias myip="dig +short myip.opendns.com @resolver1.opendns.com"        # Public facing IP Address
 alias localip="ipconfig getifaddr en0"                                 # Local  IP Address
@@ -169,9 +140,7 @@ alias openPorts='sudo lsof -i | grep LISTEN'                           # All lis
 alias showBlocked='sudo ipfw list'                                     # sAll ipfw rules inc/ blocked IPs
 alias hosts='sudo $EDITOR /etc/hosts'                                  # yes I occasionally 127.0.0.1 twitter.com ;)
 
-# ---------------------------------------
-# 6. SYSTEMS OPERATIONS & INFORMATION
-# ---------------------------------------
+#--- SYSTEMS OPERATIONS & INFORMATION -----------------------------------------
 
 # Enable/Disable Spotlight
 alias spoton="sudo mdutil -a -i on"
@@ -209,9 +178,7 @@ alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resource
 # Reload the current shell
 alias reload='exec $(lsof -p "$$" | grep -m 1 txt | xargs -n 1 | tail -n 1)'
 
-# ---------------------------------------
-# 7. WEB DEVELOPMENT
-# ---------------------------------------
+#--- WEB DEVELOPMENT -----------------------------------------------------------
 
 alias apacheEdit='sudo edit /etc/httpd/httpd.conf'    # Edit httpd.conf
 alias apacheRestart='sudo apachectl graceful'         # Restart Apache
@@ -226,17 +193,13 @@ alias canary='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Ch
 # URL-encode strings
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
 
-# ---------------------------------------
-# 8. UTILITIES
-# ---------------------------------------
+#--- UTILITIES -----------------------------------------------------------------
 
 alias sudo='sudo '            # Enable aliases to be sudo’ed
 alias week='date +%V'         # Get week number
 alias c="tr -d '\n' | pbcopy" # Trim new lines and copy to clipboard
 
-# ---------------------------------------
-# 9. BASH ONLY
-# ---------------------------------------
+#--- BASH ONLY -----------------------------------------------------------------
 
 # /usr/local/bin/bash are probably newer
 if [ -f "/usr/local/bin/bash" ]; then
