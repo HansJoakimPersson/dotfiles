@@ -1,72 +1,67 @@
 #!/usr/bin/env bash
+# shellcheck shell=bash disable=SC1090,SC1091,SC2155
 
-# Add `~/bin` to the `$PATH`
-export PATH="$HOME/bin:$PATH"
+# Lets check which shell are running
+if [ -n "$ZSH_VERSION" ]; then
+  echo "This is probably not right for you, sourcing ~/.zshrc instead"
+  source ~/.zshrc
 
-#   Load the shell dotfiles, and then some:
-#   * ~/.path can be used to extend `$PATH`.
-#   * ~/.extra can be used for other settings you don’t want to commit.
-#   ------------------------------------------------------------
-for file in ~/.{path,bash_prompt,exports,aliases,functions,extra}; do
-	[ -r "$file" ] && [ -f "$file" ] && source "$file"
-done
-unset file
+elif [ -n "$BASH_VERSION" ]; then
 
-#   gotta tune that bash_history…
-#   ------------------------------------------------------------
+  #--- LOAD DOTFILES ---------------------------------------------------------
 
-# Enable history expansion with space
-# E.g. typing !!<space> will replace the !! with your last command
-bind Space:magic-space
+  #   Load the shell dotfiles, and then some:
+  #   * ~/.path can be used to extend `$PATH`.
+  #   * ~/.extra can be used for other settings you don’t want to commit.
+  #   ------------------------------------------------------------
+  for file in ~/.{path,exports,extra,functions,aliases,bash_prompt,}; do
+    [ -r "$file" ] && [ -f "$file" ] && source "$file"
+  done
+  unset file
 
-# Append to the Bash history file, rather than overwriting it
-shopt -s histappend
+  #--- BASH HISTORY ----------------------------------------------------------
+  # gotta tune that bash_history…
 
-# Save multi-line commands as one command
-shopt -s cmdhist
+  # Enable history expansion with space
+  # E.g. typing !!<space> will replace the !! with your last command
+  bind Space:magic-space
 
-#   better `cd`'ing
-#   ------------------------------------------------------------
+  shopt -s histappend # Append to the Bash history file, rather than overwriting it
+  shopt -s cmdhist    # Save multi-line commands as one command
 
-# Case-insensitive globbing (used in pathname expansion)
-shopt -s nocaseglob
+  #--- BETTER `CD`'ING -------------------------------------------------------
 
-# Autocorrect typos in path names when using `cd`
-shopt -s cdspell
+  shopt -s nocaseglob           # Case-insensitive globbing (used in pathname expansion)
+  shopt -s cdspell              # Autocorrect typos in path names when using `cd`
+  shopt -s dirspell 2>/dev/null # Autocorrect on directory names to match a glob.
 
-# Autocorrect on directory names to match a glob.
-shopt -s dirspell 2>/dev/null
+  # Enable some Bash 4 features when possible:
+  # * `autocd`, e.g. `**/qux` will enter `./foo/bar/baz/qux`
+  # * Recursive globbing, e.g. `echo **/*.txt`
+  for option in autocd globstar; do
+    shopt -s "$option" 2>/dev/null
+  done
 
-# Enable some Bash 4 features when possible:
-# * `autocd`, e.g. `**/qux` will enter `./foo/bar/baz/qux`
-# * Recursive globbing, e.g. `echo **/*.txt`
-for option in autocd globstar; do
-	shopt -s "$option" 2>/dev/null
-done
+  #--- COMPLETION… -----------------------------------------------------------
 
-#   Completion…
-#   ------------------------------------------------------------
+  # Add tab completion for many Bash commands
+  if which brew &>/dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
+    # Ensure existing Homebrew v1 completions continue to work
+    export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
+    source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+  elif [ -f /etc/bash_completion ]; then
+    source /etc/bash_completion
 
-# Add tab completion for many Bash commands
-if which brew &>/dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
-	# Ensure existing Homebrew v1 completions continue to work
-	export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
-	source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
-elif [ -f /etc/bash_completion ]; then
-	source /etc/bash_completion
+  fi
+
+  # Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
+  [ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh
+
+  # Add tab completion for `defaults read|write NSGlobalDomain`
+  # You could just use `-g` instead, but I like being explicit
+  complete -W "NSGlobalDomain" defaults
+
+  # Add `killall` tab completion for common apps
+  complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall
+
 fi
-
-# Enable tab completion for `g` by marking it as an alias for `git`
-if type _git &>/dev/null; then
-	complete -o default -o nospace -F _git g
-fi
-
-# Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
-[ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh
-
-# Add tab completion for `defaults read|write NSGlobalDomain`
-# You could just use `-g` instead, but I like being explicit
-complete -W "NSGlobalDomain" defaults
-
-# Add `killall` tab completion for common apps
-complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall
