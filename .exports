@@ -1,37 +1,9 @@
 #!/usr/bin/env bash
+# shellcheck shell=bash disable=SC1090,SC1091,SC2155
 
-#   Set Default Editor (change 'Nano' to the editor of your choice)
-#   ------------------------------------------------------------
-export EDITOR='/usr/bin/nano'
+#--- BASH ----------------------------------------------------------------------
 
-#   Set default blocksize for ls, df, du
-#   from this: http://hints.macworld.com/comment.php?mode=view&cid=24491
-#   ------------------------------------------------------------
-export BLOCKSIZE='1k'
-
-#   Add color to terminal
-#   (this is all commented out as I use Mac Terminal Profiles)
-#   from http://osxdaily.com/2012/02/21/add-color-to-the-terminal-in-mac-os-x/
-#   ------------------------------------------------------------
-#   export CLICOLOR=1
-#   export LSCOLORS=ExFxBxDxCxegedabagacad
-
-# Let there be color in grep!
-export GREP_OPTIONS='--color=always'
-
-#   Settings for node
-#   ------------------------------------------------------------
-export NODE_REPL_HISTORY=~/.node_history # Enable persistent REPL history for `node`.
-export NODE_REPL_HISTORY_SIZE='32768'    # Allow 32³ entries; the default is 1000.
-export NODE_REPL_MODE='sloppy'           # Use sloppy mode by default, matching web browsers.
-
-#   Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
-#   ------------------------------------------------------------
-export PYTHONIOENCODING='UTF-8'
-
-#   Increase Bash history size. Allow 32³ entries; the default is 500.
-#   ------------------------------------------------------------
-
+# Increase Bash history size. Allow 32³ entries; the default is 500.
 export HISTSIZE='32768'
 export HISTFILESIZE="${HISTSIZE}"
 export HISTCONTROL='ignoreboth' # Omit duplicates and commands that begin with a space from history.
@@ -44,33 +16,88 @@ export HISTTIMEFORMAT='%F %T'
 # Don't record some commands
 export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:clear"
 
-#   Prefer US English and use UTF-8.
-#   ------------------------------------------------------------
+# Prefer US English and use UTF-8.
 export LANG='en_US.UTF-8'
 export LC_ALL='en_US.UTF-8'
 
-#   Highlight section titles in manual pages.
-#   ------------------------------------------------------------
-export LESS_TERMCAP_md="${yellow}"
+#--- ADD COLORS TO LS, GREP, LESS AND MANPAGES ---------------------------------
+
+# Add color to terminal
+# http://www.bigsoft.co.uk/blog/2008/04/11/configuring-ls_colors
+export LS_COLORS='no=00:rs=0:fi=00:di=01;34:ln=36:mh=04;36:pi=04;01;36:so=04;33:do=04;01;36:bd=01;33:cd=33:or=31:mi=01;37;41:ex=01;36:su=01;04;37:sg=01;04;37:ca=01;37:tw=01;37;44:ow=01;04;34:st=04;37;44:*.7z=01;32:*.ace=01;32:*.alz=01;32:*.arc=01;32:*.arj=01;32:*.bz=01;32:*.bz2=01;32:*.cab=01;32:*.cpio=01;32:*.deb=01;32:*.dz=01;32:*.ear=01;32:*.gz=01;32:*.jar=01;32:*.lha=01;32:*.lrz=01;32:*.lz=01;32:*.lz4=01;32:*.lzh=01;32:*.lzma=01;32:*.lzo=01;32:*.rar=01;32:*.rpm=01;32:*.rz=01;32:*.sar=01;32:*.t7z=01;32:*.tar=01;32:*.taz=01;32:*.tbz=01;32:*.tbz2=01;32:*.tgz=01;32:*.tlz=01;32:*.txz=01;32:*.tz=01;32:*.tzo=01;32:*.tzst=01;32:*.war=01;32:*.xz=01;32:*.z=01;32:*.Z=01;32:*.zip=01;32:*.zoo=01;32:*.zst=01;32:*.aac=32:*.au=32:*.flac=32:*.m4a=32:*.mid=32:*.midi=32:*.mka=32:*.mp3=32:*.mpa=32:*.mpeg=32:*.mpg=32:*.ogg=32:*.opus=32:*.ra=32:*.wav=32:*.3des=01;35:*.aes=01;35:*.gpg=01;35:*.pgp=01;35:*.doc=32:*.docx=32:*.dot=32:*.odg=32:*.odp=32:*.ods=32:*.odt=32:*.otg=32:*.otp=32:*.ots=32:*.ott=32:*.pdf=32:*.ppt=32:*.pptx=32:*.xls=32:*.xlsx=32:*.app=01;36:*.bat=01;36:*.btm=01;36:*.cmd=01;36:*.com=01;36:*.exe=01;36:*.reg=01;36:*~=02;37:*.bak=02;37:*.BAK=02;37:*.log=02;37:*.log=02;37:*.old=02;37:*.OLD=02;37:*.orig=02;37:*.ORIG=02;37:*.swo=02;37:*.swp=02;37:*.bmp=32:*.cgm=32:*.dl=32:*.dvi=32:*.emf=32:*.eps=32:*.gif=32:*.jpeg=32:*.jpg=32:*.JPG=32:*.mng=32:*.pbm=32:*.pcx=32:*.pgm=32:*.png=32:*.PNG=32:*.ppm=32:*.pps=32:*.ppsx=32:*.ps=32:*.svg=32:*.svgz=32:*.tga=32:*.tif=32:*.tiff=32:*.xbm=32:*.xcf=32:*.xpm=32:*.xwd=32:*.xwd=32:*.yuv=32:*.anx=32:*.asf=32:*.avi=32:*.axv=32:*.flc=32:*.fli=32:*.flv=32:*.gl=32:*.m2v=32:*.m4v=32:*.mkv=32:*.mov=32:*.MOV=32:*.mp4=32:*.mpeg=32:*.mpg=32:*.nuv=32:*.ogm=32:*.ogv=32:*.ogx=32:*.qt=32:*.rm=32:*.rmvb=32:*.swf=32:*.vob=32:*.webm=32:*.wmv=32:'
+
+# Set timestyle for ls
+export TIME_STYLE=long-iso
+
+# Let there be color in grep!
+export GREP_OPTIONS='--color=always'
 
 # Don’t clear the screen after quitting a manual page.
 export MANPAGER='less -X'
+
+# highlighting inside manpages and elsewhere
+export LESS_TERMCAP_mb=$(
+  tput bold
+  tput setaf 2
+) # begin blinking
+export LESS_TERMCAP_md=$(
+  tput bold
+  tput setaf 6
+)                                   # begin bold
+export LESS_TERMCAP_me=$(tput sgr0) # end mode
+export LESS_TERMCAP_so=$(
+  tput bold
+  tput setaf 3
+  tput setab 4
+) # begin standout-mode - info box
+export LESS_TERMCAP_se=$(
+  tput rmso
+  tput sgr0
+) # end standout-mode
+export LESS_TERMCAP_us=$(
+  tput smul
+  tput bold
+  tput setaf 2
+) # begin underline
+export LESS_TERMCAP_ue=$(
+  tput rmul
+  tput sgr0
+) # end underline
+
+#--- HOMEBREW ------------------------------------------------------------------
+
+# Trying to get the Apps to install in the Apps location
+export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
 # Avoid issues with `gpg` as installed via Homebrew.
 # https://stackoverflow.com/a/42265848/96656
 export GPG_TTY=$(tty)
 
-# highlighting inside manpages and elsewhere
-export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
-export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
-export LESS_TERMCAP_me=$'\E[0m'           # end mode
-export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
-export LESS_TERMCAP_so=$'\E[38;5;246m'    # begin standout-mode - info box
-export LESS_TERMCAP_ue=$'\E[0m'           # end underline
-export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
+#--- NODE ----------------------------------------------------------------------
 
-# Trying to get the Apps to install in the Apps location
-export HOMEBREW_CASK_OPTS="--appdir=/Applications"
+export NODE_REPL_HISTORY=~/.node_history # Enable persistent REPL history for `node`.
+export NODE_REPL_HISTORY_SIZE='32768'    # Allow 32³ entries; the default is 1000.
+export NODE_REPL_MODE='sloppy'           # Use sloppy mode by default, matching web browsers.
 
-export PATH="$PATH:/usr/local/bin/"
-export PATH="/usr/local/git/bin:/sw/bin/:/usr/local/bin:/usr/local/:/usr/local/sbin:/usr/local/mysql/bin:$PATH"
+#--- MISCELLANEOUS -------------------------------------------------------------
+
+# Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
+export PYTHONIOENCODING='UTF-8'
+
+# Set Default Editor (change 'Nano' to the editor of your choice)
+export EDITOR='/usr/bin/nano'
+
+# Set default blocksize for ls, df, du
+# from this: http://hints.macworld.com/comment.php?mode=view&cid=24491
+export BLOCKSIZE='1k'
+
+#--- PATHS ---------------------------------------------------------------------
+
+export PATH="$PATH:$HOME/bin"                               # User bin
+export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" # coreutils
+export PATH="/usr/local/bin:$PATH"                          # Brew bin
+export PATH="/usr/local/sbin:$PATH"                         # Brew sbin
+export PATH="/usr/local/git/bin:$PATH"                      # Git bin
+export PATH="/usr/local/bin:/sw/bin:/usr/local:$PATH"       # Unknown
+export PATH="/usr/local/mysql/bin:$PATH"                    # MySQL bin
+export PATH="/opt/metasploit-framework/bin:$PATH"           # Metasploit bin
