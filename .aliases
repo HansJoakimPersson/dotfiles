@@ -32,10 +32,11 @@ cd() { builtin cd "$@" && ls; }  # Always list directory contents upon 'cd'
 
 # Shortcuts
 alias dropbox="cd ~/Documents/Dropbox"
-alias icloud="cd /Users/joakim/Library/Mobile\ Documents/com\~apple\~CloudDocs"
+alias icloud="cd ~/Library/Mobile\ Documents/com\~apple\~CloudDocs"
+alias onedrive="cd ~/OneDrive"
 alias downloads="cd ~/Downloads"
 alias desktop="cd ~/Desktop"
-alias project="cd ~/projects"
+alias projects="cd ~/projects"
 alias vs="open -a 'Visual Studio Code'"
 
 # Always enable colored `grep` output
@@ -60,7 +61,7 @@ resetScrollBack() {
 alias cls='clear'           # Becouse sometimes you miss MS-DOS
 alias clear=resetScrollBack # Clear terminal display and ask for scrollBack reset
 
-alias which='type -all'                   # Find executables
+alias which='type -a'                     # Find executables
 alias path='echo -e ${PATH//:/\\n}'       # Echo all executable Paths
 alias fix_stty='stty sane'                # Restore terminal settings when screwed up
 alias cic='set completion-ignore-case On' # Make tab-completion case-insensitive
