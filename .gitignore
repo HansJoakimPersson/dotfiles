@@ -1,5 +1,6 @@
 ### specific ###
 .extra
+.gitconfig
 
 ### macOS General ###
 .DS_Store
