@@ -133,7 +133,8 @@ sudo defaults write -g NSQuitAlwaysKeepsWindows -int 0
 #TODO: Use font smoothing when available, these dont work on catalina
 # Re-enable subpixel antialiasing
 #Use font smoothing when available
-sudo defaults write -g CGFontRenderingFontSmoothingDisabled -int 0
+sudo defaults -currentHost write -g AppleFontSmoothing -int 0
+# sudo defaults write -g CGFontRenderingFontSmoothingDisabled -int 0
 
 # Enable medium font smoothing subpixel font rendering on non-Apple LCDs
 # Reference: https://github.com/kevinSuttle/macOS-Defaults/issues/17#issuecomment-266633501
