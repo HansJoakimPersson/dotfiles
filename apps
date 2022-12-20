@@ -101,9 +101,5 @@ printf "\n\n${col_yellow}Installing Mac App Store apps${col_reset}"
 execute eval "brew install mas"
 
 # Install Apps
-#execute eval "mas install 442160987" #"Flycut"
-#execute eval "mas install 638161122" #"YubiKey Personalization Tool"
-execute eval "mas install 509733654" #"HashMaker"
 execute eval "mas install 1295203466" #"Microsoft Remote Desktop"
 execute eval "mas install 937984704" #"Amphetamine"
-execute eval "mas install 404010395" #"TextWrangler"
