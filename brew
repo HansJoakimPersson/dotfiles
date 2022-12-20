@@ -226,6 +226,7 @@ brew install wireguard-tools
 # brew install yed
 # brew install android-platform-tools
 brew install visual-studio-code
+
 # brew install powershell
 # brew install signal
 # brew install zoom
@@ -250,6 +251,10 @@ brew install mysqlworkbench
 brew tap mongodb/brew
 brew install mongodb-community
 brew install --cask mongodb-compass
+
+#R
+brew install r
+brew install rstudio
 
 # Quicklook
 printf "\n\n${col_yellow}Installing Quicklook plugins${col_reset}"
