@@ -1,8 +1,20 @@
-# Disable the startup message
+# Disable the initial splash screen when starting a new screen session
 startup_message off
 
-# Set a large scrollback buffer
+# Set a larger scrollback buffer to retain more output history.
+# Default is usually 100, this setting increases it to 32000 lines.
 defscrollback 32000
 
-# Always start `screen` with UTF-8 enabled (`screen -U`)
+# Enable UTF-8 encoding by default.
+# This ensures proper display and input of multibyte characters.
 defutf8 on
+
+# Customize the status line
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %m-%d %{W}%c %{g}]'
+
+# Automatically set the window's name based on the current command being run
+shelltitle '$ |bash'
+
+# Visual activity in other windows
+activity "Activity in %n: %t"

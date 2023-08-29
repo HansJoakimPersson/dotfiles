@@ -1,46 +1,42 @@
 # Make Tab autocomplete regardless of filename case
 set completion-ignore-case on
 
-# Treat hyphens and underscores as equivalent
+# Treat hyphens and underscores as equivalent during completion
 set completion-map-case on
 
-# Sets readline to display possible completions using different colors to indicate their file types
+# Display possible completions using colors indicating their file types
 set colored-stats On
 
-# List all matches in case multiple possible completions are possible
+# List all matches immediately if multiple completions are possible
 set show-all-if-ambiguous on
 
-# Immediately add a trailing slash when autocompleting symlinks to directories
+# Add a trailing slash automatically when autocompleting symlinks to directories
 set mark-symlinked-directories on
 
-# Use the text that has already been typed as the prefix for searching through
-# commands (i.e. more intelligent Up/Down behavior)
+# More intelligent command history navigation with Up/Down arrow keys.
+# This searches the history for commands that start with what's already been typed.
 "\e[B": history-search-forward
 "\e[A": history-search-backward
 
-# Do not autocomplete hidden files unless the pattern explicitly begins with a dot
+# Do not autocomplete filenames starting with a dot unless the pattern explicitly begins with a dot
 set match-hidden-files off
 
-# Show all autocomplete results at once
+# Display all autocomplete results at once, rather than paginating
 set page-completions off
 
-# If there are more than 200 possible completions for a word, ask to show them all
+# If more than 200 possible completions exist, ask before showing them all
 set completion-query-items 200
 
-# Show extra file information when completing, like `ls -F` does
+# Show extra file information during completion, similar to the behavior of `ls -F`
 set visible-stats on
 
-# Be more intelligent when autocompleting by also looking at the text after
-# the cursor. For example, when the current line is "cd ~/src/mozil", and
-# the cursor is on the "z", pressing Tab will not autocomplete it to "cd
-# ~/src/mozillail", but to "cd ~/src/mozilla". (This is supported by the
-# Readline used by Bash 4.)
+# Intelligent autocompletion by considering text after the cursor (supported in Bash 4's Readline)
 set skip-completed-text on
 
-# Allow UTF-8 input and output, instead of showing stuff like $'\0123\0456'
-set input-meta on
-set output-meta on
-set convert-meta off
+# UTF-8 input and output settings
+set input-meta on      # Allow the input of 8-bit characters
+set output-meta on     # Enable the display of 8-bit characters
+set convert-meta off   # Do not convert 8-bit characters to escape sequences
 
-# Use Alt/Meta + Delete to delete the preceding word
+# Bind Alt/Meta + Delete to delete the preceding word
 "\e[3;3~": kill-word

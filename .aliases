@@ -1,10 +1,25 @@
 #!/usr/bin/env sh
-# shellcheck shell=bash disable=SC1090,SC1091,SC2155,SC2164
+# shellcheck shell=bash disable=SC1090
+
+# 1. MAKE TERMINAL BETTER
+# 2. FILE AND FOLDER MANAGEMENT
+# 3. SEARCHING
+# 4. PROCESS MANAGEMENT
+# 5. NETWORKING
+# 6. SYSTEMS OPERATIONS & INFORMATION
+# 7. WEB DEVELOPMENT
+# 8. UTILITIES
+# 9. BASH ONLY
 
 # Remove all previous aliases
 unalias -a
 
-#--- MAKE TERMINAL BETTER -----------------------------------------------------
+# Check for MacOS
+is_mac() {
+  [ "$(uname)" = "Darwin" ]
+}
+
+# ---[ 1. MAKE TERMINAL BETTER ]------------------------------------------------
 
 # List aliases
 alias ll='ls -AFhlpG --color=auto'     # Preferred ls long format, excluding . and ..
@@ -18,7 +33,7 @@ alias ld='ld | grep "^d" --color=auto' # List only directories
 #  alias ld='lsd -Ahl | grep "^d"' #List only directories
 #fi
 
-# Easier navigation: .., ..., ...., ....., ~ and -
+# Easier directory navigation
 alias cd..='cd ../'              # Go back 1 directory level (for fast typers)
 alias ..='cd ../'                # Go back 1 directory level
 alias ...='cd ../../'            # Go back 2 directory levels
@@ -30,7 +45,7 @@ alias ~="cd ~"                   # Go Home
 alias -- -="cd -"                # Go up one level
 cd() { builtin cd "$@" && ls; }  # Always list directory contents upon 'cd'
 
-# Shortcuts
+# Shortcuts for quick navigation
 alias dropbox="cd ~/Documents/Dropbox"
 alias icloud="cd ~/Library/Mobile\ Documents/com\~apple\~CloudDocs"
 alias onedrive="cd ~/OneDrive"
@@ -40,24 +55,10 @@ alias projects="cd ~/projects"
 alias vs="open -a 'Visual Studio Code'"
 
 # Always enable colored `grep` output
-# Note: `GREP_OPTIONS="--color=auto"` is deprecated, hence the alias usage.
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-# Save me from myself
-alias rm="rm -i"
-alias mv="mv -i"
-alias cp="cp -i"
-
-resetScrollBack() {
-  echo -n "Do you want to reset scroll-back (y/N)? "
-  read -r answer
-  clear
-  if [ "$answer" != "${answer#[Yy]}" ]; then
-    printf '\e[3J'
-  fi
-}
 alias cls='clear'           # Becouse sometimes you miss MS-DOS
 alias clear=resetScrollBack # Clear terminal display and ask for scrollBack reset
 
@@ -65,71 +66,95 @@ alias which='type -a'                     # Find executables
 alias path='echo -e ${PATH//:/\\n}'       # Echo all executable Paths
 alias fix_stty='stty sane'                # Restore terminal settings when screwed up
 alias cic='set completion-ignore-case On' # Make tab-completion case-insensitive
-mcd() { mkdir -p "$1" && cd "$1"; }       # Makes new Dir and jumps inside
-trash() { command mv "$@" ~/.Trash; }     # Moves a file to the MacOS trash
-ql() { qlmanage -p "$*" >&/dev/null; }    # Opens any file in MacOS Quicklook Preview
-alias DT='tee ~/Desktop/terminalOut.txt'  # Pipe content to file on MacOS Desktop
-alias finder='open -a Finder ./'          # Opens current directory in MacOS Finder
 
-alias cp='cp -iv'        # Preferred 'cp' implementation
-alias mv='mv -iv'        # Preferred 'mv' implementation
-alias mkdir='mkdir -pv'  # Preferred 'mkdir' implementation
-alias less='less -FSRXc' # Preferred 'less' implementation
+# macOS Specifics
+if is_mac; then
+  trash() { command mv "$@" ~/.Trash; }      # Moves a file to the MacOS trash
+  ql() { qlmanage -p "$*" >/dev/null 2>&1; } # Opens any file in MacOS Quicklook Preview
+  alias DT='tee ~/Desktop/terminalOut.txt'   # Pipe content to file on MacOS Desktop
+  alias finder='open -a Finder ./'           # Opens current directory in MacOS Finder
+fi
 
-#--- FILE AND FOLDER MANAGEMENT -----------------------------------------------
+# Preferred implementations
+alias cp='cp -iv' # save me from myself
+alias mv='mv -iv' # save me from myself
+alias mkdir='mkdir -pv'
+alias less='less -FSRXc'
 
-zipf() { zip -r "$1".zip "$1"; }                        # To create a ZIP archive of a folder
-alias numFiles='echo $(ls -1 | wc -l)'                  # Count of non-hidden files in current dir
-alias make1mb='mkfile 1m ./1MB.dat'                     # Creates a file of 1mb size (all zeros)
-alias make5mb='mkfile 5m ./5MB.dat'                     # Creates a file of 5mb size (all zeros)
-alias make10mb='mkfile 10m ./10MB.dat'                  # Creates a file of 10mb size (all zeros)
-command -v hd >/dev/null || alias hd="hexdump -C"       # Canonical hex dump; some systems have this symlinked
-command -v md5sum >/dev/null || alias md5sum="md5"      # macOS has no `md5sum`, so use `md5` as a fallback
-command -v sha1sum >/dev/null || alias sha1sum="shasum" # macOS has no `sha1sum`, so use `shasum` as a fallback
+# ---[ 2. FILE AND FOLDER MANAGEMENT ]------------------------------------------
+# Function to zip a directory.
+# Usage: zipf directory_name
+# Result: Creates a ZIP file named directory_name.zip containing all the contents of the directory.
+zipf() { zip -r "$1".zip "$1"; }
 
-# Merge PDF files, preserving hyperlinks
-# Usage: `mergepdf input{1,2,3}.pdf`
-alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.pdf'
+# Alias to count the number of non-hidden files in the current directory.
+alias numFiles='echo $(ls -1 | wc -l)'
 
-#--- SEARCHING ----------------------------------------------------------------
+# Aliases to create files of specified sizes filled with zeros.
+# Useful for quickly generating test files.
+alias make1mb='mkfile 1m ./1MB.dat'
+alias make5mb='mkfile 5m ./5MB.dat'
+alias make10mb='mkfile 10m ./10MB.dat'
 
-alias qfind="find . -name " # qfind:    Quickly search for file
+# Check if the `hd` command exists, if not, create an alias to the canonical hex dump.
+# Useful for systems that don't have the `hd` command symlinked.
+command -v hd >/dev/null || alias hd="hexdump -C"
+
+# On macOS, some utilities have different names.
+# These lines create aliases to use familiar command names (`md5sum` and `sha1sum`) if they don't exist natively.
+command -v md5sum >/dev/null || alias md5sum="md5"
+command -v sha1sum >/dev/null || alias sha1sum="shasum"
+
+# Alias to merge multiple PDF files into a single file.
+# This uses Ghostscript to merge the files, preserving hyperlinks.
+# Usage: mergepdf input1.pdf input2.pdf ...
+# Result: A single PDF file named _merged.pdf containing all the contents of the input PDFs.
+command -v gs >/dev/null || alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.pdf'
+
+# ---[ 3. SEARCHING ]-----------------------------------------------------------
+# Streamlined searching commands
+
+# Quickly search for files with a specific name pattern from the current directory.
+# Usage: qfind <filename_pattern>
+alias qfind="find . -name"
 
 # Intuitive map function
-# For example, to list all directories that contain a certain file:
-# find . -name .gitattributes | map dirname
+# Usage: <command> | map <function>
+# Example: To list all directories that contain a certain file:
+#          find . -name .gitattributes | map dirname
 alias map="xargs -n1"
 
-#--- PROCESS MANAGEMENT -------------------------------------------------------
+# ---[ 4. PROCESS MANAGEMENT ]--------------------------------------------------
 
-# the "kp" alias ("que pasa"), in honor of tony p.
+# Display a detailed process listing
+# Inspired by Tony P., hence the name "kp" (which stands for "que pasa").
 alias kp="ps auxwww"
 
-# Find memory hogs
+# Display memory-consuming processes
+# Shows the top memory consuming processes with their details.
 alias memHogsTop='top -l 1 -o rsize | head -20'
 alias memHogsPs='ps wwaxm -o pid,stat,vsize,rss,time,command | head -10'
 
-# Find CPU hogs
+# Display CPU-consuming processes
+# Shows the top CPU consuming processes with their details.
 alias cpu_hogs='ps wwaxr -o pid,stat,%cpu,time,command | head -10'
 
-# Continual 'top' listing (every 10 seconds)
+# Continual display of the 'top' command, refreshing every 10 seconds.
+# Shows the processes in order of CPU usage.
 alias topForever='top -l 9999999 -s 10 -o cpu'
 
-# Recommended 'top' invocation to minimize resources
-# ------------------------------------------------------------
-# Taken from this macosxhints article
-# http://www.macosxhints.com/article.php?story=20060816123853639
-# ------------------------------------------------------------
+# Recommended 'top' invocation for macOS users to minimize resource usage.
+# This alias is based on the recommended settings from a macosxhints article.
+# See: http://www.macosxhints.com/article.php?story=20060816123853639
 alias ttop="top -R -F -s 10 -o rsize"
 
-# Kill all the tabs in Chrome to free up memory
-# [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
+# Kill all the renderer tabs in Chrome to free up memory.
+# Excludes extension processes.
+# The '[C]' pattern in the grep command is a trick to exclude the grep process itself from the results.
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
-#--- NETWORKING ---------------------------------------------------------------
-
-alias myip="dig +short myip.opendns.com @resolver1.opendns.com"        # Public facing IP Address
-alias localip="ipconfig getifaddr en0"                                 # Local  IP Address
+# ---[ 5. NETWORKING  ]----------------------------------------------------------
+# Networking utilities and information
 alias netCons='lsof -i'                                                # Show all open TCP/IP sockets
 alias flushDNS='dscacheutil -flushcache && killall -HUP mDNSResponder' # Flush out the DNS Cache
 alias lsock='sudo /usr/sbin/lsof -i -P'                                # Display open sockets
@@ -138,76 +163,91 @@ alias lsockT='sudo /usr/sbin/lsof -nP | grep TCP'                      # Display
 alias ipInfo0='ipconfig getpacket en0'                                 # Get info on connections for en0
 alias ipInfo1='ipconfig getpacket en1'                                 # Get info on connections for en1
 alias openPorts='sudo lsof -i | grep LISTEN'                           # All listening connections
-alias showBlocked='sudo ipfw list'                                     # sAll ipfw rules inc/ blocked IPs
 alias hosts='sudo $EDITOR /etc/hosts'                                  # yes I occasionally 127.0.0.1 twitter.com ;)
 
-#--- SYSTEMS OPERATIONS & INFORMATION -----------------------------------------
+# macOS Specifics
+if is_mac; then
+  # Check if `ipfw` command exists, if not don't set the alias (as it's deprecated)
+  if command -v ipfw >/dev/null 2>&1; then
+    alias showBlocked='sudo ipfw list' # Show all ipfw rules inc/ blocked IPs
+  fi
+fi
 
-# Enable/Disable Spotlight
-alias spoton="sudo mdutil -a -i on"
-alias spotoff="sudo mdutil -a -i off"
+# ---[ 6. SYSTEMS OPERATIONS & INFORMATION ]------------------------------------
 
-# Empty the Trash on all mounted volumes and the main HDD.
-# Also, clear Apple’s System Logs to improve shell startup speed.
-# Finally, clear download history from quarantine. https://mths.be/bum
-alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
+# macOS Specifics
+if is_mac; then
+  # Enable/Disable Spotlight
+  alias spoton="sudo mdutil -a -i on"
+  alias spotoff="sudo mdutil -a -i off"
 
-# Show/hide hidden files in Finder
-alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
-alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
+  # Empty the Trash on all mounted volumes and the main HDD.
+  # Also, clear Apple’s System Logs to improve shell startup speed.
+  # Finally, clear download history from quarantine. See: https://mths.be/bum
+  alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
 
-# Hide/show all desktop icons (useful when presenting)
-alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
-alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
+  # Show/hide hidden files in Finder
+  alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+  alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
 
-# Airport CLI alias
-alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
+  # Hide/show all desktop icons (useful when presenting)
+  alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
+  alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
+
+  # Airport CLI alias
+  alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport'
+
+  # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm,
+  # and their installed packages
+  alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup'
+
+  # Lock the screen (when going AFK)
+  alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
+
+  # Clean up LaunchServices to remove duplicates in the "Open With" menu
+  alias cleanupLS="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
+fi
 
 # Recursively delete .DS_Store files
 alias cleanupDS="find . -type f -name '*.DS_Store' -ls -delete"
 
-# Clean up LaunchServices to remove duplicates in the "Open With" menu
-alias cleanupLS="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
-
-# Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm,
-# and their installed packages
-alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup'
-
-# Lock the screen (when going AFK)
-alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
-
 # Reload the current shell
 alias reload='exec $(lsof -p "$$" | grep -m 1 txt | xargs -n 1 | tail -n 1)'
 
-#--- WEB DEVELOPMENT -----------------------------------------------------------
+# ---[ 7. WEB DEVELOPMENT ]-----------------------------------------------------
 
-alias apacheEdit='sudo edit /etc/httpd/httpd.conf'    # Edit httpd.conf
-alias apacheRestart='sudo apachectl graceful'         # Restart Apache
-alias editHosts='sudo edit /etc/hosts'                # Edit /etc/hosts file
-alias herr='tail /var/log/httpd/error_log'            # Tails HTTP error logs
-alias apacheLogs="less +F /var/log/apache2/error_log" # Shows apache error logs
+# Apache controls and logs
+alias apacheEdit='sudo edit /etc/httpd/httpd.conf'    # Edit Apache configuration
+alias apacheRestart='sudo apachectl graceful'         # Gracefully restart Apache
+alias editHosts='sudo edit /etc/hosts'                # Edit hosts file
+alias herr='tail /var/log/httpd/error_log'            # View recent Apache error logs
+alias apacheLogs="less +F /var/log/apache2/error_log" # Browse Apache error logs interactively
 
 # Google Chrome
 alias chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
 alias canary='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary'
 
+# colorizing the JSON output by default.
+command -v jq >/dev/null || alias curl='curl -s | jq .'
+
 # URL-encode strings
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
 
-#--- UTILITIES -----------------------------------------------------------------
+# ---[ 8. UTILITIES ]-----------------------------------------------------------
 
-alias sudo='sudo '            # Enable aliases to be sudo’ed
-alias week='date +%V'         # Get week number
-alias c="tr -d '\n' | pbcopy" # Trim new lines and copy to clipboard
+# General utility aliases
+alias sudo='sudo '            # Allow aliases with sudo
+alias week='date +%V'         # Display the week number
+alias c="tr -d '\n' | pbcopy" # Remove new lines and copy to clipboard
 
-#--- BASH ONLY -----------------------------------------------------------------
+# ---[ 9. BASH ONLY ]-----------------------------------------------------------
 
-# /usr/local/bin/bash are probably newer
+# Use a newer bash if available
 if [ -f "/usr/local/bin/bash" ]; then
   alias bash='/usr/local/bin/bash'
 fi
 
-# Some alias are for bash only
+# Bash-specific aliases
 if [ -n "$BASH_VERSION" ]; then
-  alias show_options='shopt' # Display bash options settings
+  alias show_options='shopt' # Display bash options
 fi

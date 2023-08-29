@@ -1,9 +1,9 @@
+# Dotfiles
+
 ![Lines of code](https://img.shields.io/tokei/lines/github/HansJoakimPersson/dotfiles)
 ![GitHub](https://img.shields.io/github/license/HansJoakimPersson/dotfiles)
 [![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
 ![GitHub last commit](https://img.shields.io/github/last-commit/HansJoakimPersson/dotfiles)
-
-# Dotfiles
 
 This repository works helps me configure and maintain my Mac. It simplifies the effort of install my preferred MacOS flavour manually. Feel free to explore, learn and copy parts to your own dotfiles. Enjoy! :smile:
 
@@ -36,21 +36,22 @@ My `~/.extra` looks something like this:
 # Git credentials
 # Not in the repository, to prevent people from accidentally committing under my name
 GIT_AUTHOR_NAME="Joakim Persson"
-GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
 git config --global user.name "$GIT_AUTHOR_NAME"
+
 GIT_AUTHOR_EMAIL="mail@mailinator.com"
-GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
 git config --global user.email "$GIT_AUTHOR_EMAIL"
 ```
 
-You could also use `~/.extra` to override settings, functions and aliases from my dotfiles repository. It’s probably better to [fork this repository](https://github.com/mathiasbynens/dotfiles/fork) instead, though.
+You could also use `~/.extra` to override settings, functions and aliases from my dotfiles repository. It’s probably better to [fork this repository](https://github.com/HansJoakimPersson/dotfiles/fork) instead, though.
 
 ## Aliases and Functions
+
 To keep things easy, the `~/.bashrc` and `~/.bash_profile` files are extremely simple, and should never need to be modified. Instead, add your aliases, functions, settings, etc into corresponding file. They're all automatically sourced when a new shell is opened. Take a look, I have [a lot of aliases and functions](source). I even have a [fancy prompt](.bash_prompt) that shows the current directory, time and current git/svn repo status.
 
 ## ¯\\_(ツ)_/¯ Warning / Liability
+
 > Warning:
-The creator of this repo is not responsible if your machine ends up in a state you are not happy with. If you are concerned, look at the code to review everything this will do to your machine :)
+> The creator of this repo is not responsible if your machine ends up in a state you are not happy with. If you are concerned, look at the code to review everything this will do to your machine :)
 
 ## Feedback
 
@@ -63,9 +64,9 @@ I first got the idea for starting this project by visiting the [Github does dotf
 
 * [Mathias Bynens](https://mathiasbynens.be/) and his [dotfiles repository](https://github.com/mathiasbynens/dotfiles) , which helped a lot with configuring macOS settings. Mathias’ macOS defaults script is legendary and many people include a version of his configuration file in their own macOS dotfiles.
 * [Dries Vints](https://github.com/driesvints), his [dotfiles repository](https://github.com/driesvints/dotfiles) and associated [blog post](https://driesvints.com/blog/getting-started-with-dotfiles/)
-*[Paul Irish](https://github.com/paulirish) and his [dotfiles repository](https://github.com/paulirish/dotfiles)
-*[Zach Holman](https://github.com/holman), his [dotfiles repository](https://github.com/holman/dotfiles) and associated [blog post](https://zachholman.com/2010/08/dotfiles-are-meant-to-be-forked/)
-*[Peter T Bosse](https://github.com/ptb) and his [mac-setup.command](https://github.com/ptb/mac-setup/blob/develop/mac-setup.command), its massive!
+   *[Paul Irish](https://github.com/paulirish) and his [dotfiles repository](https://github.com/paulirish/dotfiles)
+   *[Zach Holman](https://github.com/holman), his [dotfiles repository](https://github.com/holman/dotfiles) and associated [blog post](https://zachholman.com/2010/08/dotfiles-are-meant-to-be-forked/)
+   *[Peter T Bosse](https://github.com/ptb) and his [mac-setup.command](https://github.com/ptb/mac-setup/blob/develop/mac-setup.command), its massive!
 * [Ben Alman](http://benalman.com/) and his [dotfiles repository](https://github.com/cowboy/dotfiles)
 
 ## License

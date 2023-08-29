@@ -1,293 +1,316 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2059
+# shellcheck disable=SC2317,SC2059,SC2294,SC2155
 
-###############################################################################
-# Strict Mode
-###############################################################################
-# Set strict mode -  via http://redsymbol.net/articles/unofficial-bash-strict-mode/
-# Return value of a pipeline is the value of the last (rightmost) command to
-# exit with a non-zero status, or zero if all commands in the pipeline exit
-# successfully.
+#--- [ STRICT MODE ] -----------------------------------------------------------
 
-# Print a helpful message if a pipeline with non-zero exit code causes the
-# script to exit as described above.
-#trap 'echo "Aborting due to errexit on line $LINENO. Exit code: $?" >&2' ERR
+# Set strict mode for safer script execution.
+set -o errexit  # Exit on command error.
+set -o errtrace # Trap errors in functions and sub-shells.
+set -o nounset  # Exit on uninitialized variables.
+set -o pipefail # Use the error status of the first failed command in a pipeline.
 
-# Exit immediately if a pipeline returns non-zero.
-# Append "|| true" if you expect an error.
-set -o errexit
-# Allow the above trap be inherited by all functions in the script.
-# Exit on error inside any functions or subshells.
-set -o errtrace
-# Do not allow use of undefined vars. Use ${VAR:-} to use an undefined VAR
-set -o nounset
-# Return value of a pipeline is the value of the last (rightmost) command to
-# exit with a non-zero status, or zero if all commands in the pipeline exit
-# successfully.
-set -o pipefail
-# Turn on traces, useful while debugging but commented out by default
-#set -o xtrace
-
-# Set $IFS to only newline and tab.
-#
-# http://www.dwheeler.com/essays/filenames-in-shell.html
+# Set Internal Field Separator to newline and tab to handle file names with spaces properly.
 IFS=$'\n\t'
 
-###############################################################################
-# Globals
-###############################################################################
-# Reset
-readonly col_reset="\x1b[0m" # Text Reset
+#--- [ GLOBALS ] ---------------------------------------------------------------
 
-# Foreground color
-readonly col_green="\x1b[32m"
-readonly col_yellow="\x1b[33m"
-readonly col_red="\x1b[31m"
+readonly col_reset="\x1b[0m"   # Text Reset
+readonly col_green="\x1b[32m"  # Green
+readonly col_yellow="\x1b[33m" # Yellow
+readonly col_red="\x1b[31m"    # Red
+readonly char_succ="✔"         # Success character
+readonly char_fail="✖"         # Failure character
 
-# Special characters
-readonly char_succ="✔"
-readonly char_fail="✖"
-
-error() {
-	printf "${col_red}${char_fail}${col_reset}"
+# Function to execute a command and provide visual feedback.
+execute() {
+	printf "\n ⇒ %s " "$*"
+	if
+		eval "$@" >/dev/null 2>&1 &
+		spinner "$!"
+	then
+		ok
+	else
+		error
+	fi
 }
 
-ok() {
-	printf "${col_green}${char_succ}${col_reset}"
+# Function to display a spinner while another command is executing.
+spinner() {
+	local i=0
+	local sp="\|/-"
+	local n=${#sp}
+	while ps a | awk '{print $1}' | grep -q "${1}"; do
+		sleep "0.75"
+		printf "%s\b" "${sp:i++%n:1}" # Display next spinner character.
+	done
 }
 
-###############################################################################
-# Main script
-###############################################################################
+error() { printf "${col_red}${char_fail}${col_reset}"; } # Function to display an error.
+ok() { printf "${col_green}${char_succ}${col_reset}"; }  # Function to display a success message.
 
+#--- [ MAIN SCRIPT ] -----------------------------------------------------------
+
+# Print header.
 printf "\n\n================================================================================\n"
 printf "=                       Installing Homebrew packages...                        =\n"
 printf "================================================================================\n"
 
-# Ask for the administrator password upfront
+# Ask for the administrator password upfront.
 sudo -v
 
-# Keep-alive: update existing `sudo` time stamp until `brew` has finished
-while true; do
-	sudo -n true
-	sleep 60
-	kill -0 "$$" || exit
-done 2>/dev/null &
+# Keep the sudo session active, in the background.
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-# Check for Homebrew and install if we don't have it
-printf "\n${col_yellow}Checking homebrew${col_reset} "
-if test ! "$(command -v brew)"; then
-	printf "\n ⇒  downloading and installing Homebrew "
-	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-	if [[ $? != 0 ]]; then
-		error "unable to install homebrew, script $0 abort!"
-		exit 2
-	fi
+# Verify and install Homebrew if not present.
+if ! command -v brew >/dev/null 2>&1; then
+	printf "\n${col_yellow}Downloading and installing Homebrew...${col_reset}\n"
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew analytics off
-	ok
-else
-	printf "\n ⇒  Homebrew are already installed "
-	ok
 fi
 
 # Make sure we’re using the latest Homebrew.
-printf "\n\n${col_yellow}Make sure we’re using the latest Homebrew${col_reset}"
+printf "\n\n${col_yellow}Make sure we’re using the latest Homebrew${col_reset}\n"
 brew update
 
 # Upgrade any already-installed formulae.
-printf "\n\n${col_yellow}Upgrade any already-installed formulae${col_reset}"
+printf "\n\n${col_yellow}Upgrade any already-installed formula${col_reset}\n"
 brew upgrade
 
 # Save Homebrew’s installed location.
 export BREW_PREFIX=$(brew --prefix)
 
-# Install GNU core utilities (those that come with OS X are outdated)
-printf "\n\n${col_yellow}Installing core utilities${col_reset} "
+# Function to check if a package is already installed.
+is_installed() {
+	brew list --formulae | grep --color=never -wq "$1"
+}
 
-brew install coreutils
-brew install moreutils
-brew install findutils
-brew install gnu-sed
-
-# Install a modern version of Bash.
-brew install bash
-brew install bash-completion2
-
-# Install wget with IRI support
-brew install wget
-
-# Install more recent versions of some MacOS tools
-brew install vim
-brew install nano
-brew install grep
-brew install openssh
-brew install screen
-brew install gmp
-
-# Install other useful binaries
-brew install node
-brew install the_silver_searcher
-brew install fzf
-brew install git
-brew install git-lfs
-brew install gnupg
-brew install hub
-brew install ghostscript 				# Also known as "sg"
-brew install pipeviewer  				# Also known as "pv"
-brew install rename
-brew install tree 						# List directories in a tree structure
-brew install zopfli
-brew install zlib 						# Needed for Memcached
-brew install p7zip
-brew install pigz
-brew install vbindiff
-brew install httpie
-brew install bat 						# "cat" on steroids
-brew install terminal-notifier
-brew install pidcat 					# Colored logcat guy
-brew install ncdu   					# Find where your diskspace went
-brew install shfmt 						# Autoformat shell script source code
-brew install lsd 						# Color and icons for ls
-
-# Install multimedia tools
-brew install ffmpeg
-brew install imagemagick
-brew install Soundflower # Used to record internal sound https://github.com/mattingalls/Soundflower/releases/tag/2.0b2
-
-# Install some CTF and Forensics tools;
-printf "\n\n${col_yellow}Installing some CTF and Forensics tools${col_reset}"
-
-# Install Java first to prevent packages that depends on it from failing
-brew install adoptopenjdk
-brew install docker
-
-# Install some CTF tools;
-brew install aircrack-ng #Java 1.8+ is required to install this forumula
-brew install binutils
-brew install binwalk
-brew install cifer
-brew install dex2jar
-brew install dns2tcp
-brew install fcrackzip
-brew install foremost
-brew install hashcat
-brew install hashpump
-brew install hydra
-brew install john
-brew install knock
-brew install netpbm
-brew install nmap
-brew install pngcheck
-brew install socat
-brew install sqlmap
-brew install tcpflow
-brew install tcpreplay
-brew install tcptrace
-brew install ucspi-tcp # $(tcpserver) etc.
-brew install xpdf
-brew install xz
-brew install clamav
-brew install yara
-
-# Install some Forensic tools
-brew install autopsy #"java is required
-brew install dc3dd
-brew install volatility
-
-# Apps
-printf "\n\n${col_yellow}Installing Apps${col_reset}"
-# brew install atom
-# brew install adobe-creative-cloud
-brew install adobe-acrobat-reader
-brew install betterzip
-
-# brew install dropbox
-# brew install docker
-# brew install easyfind
-brew install Cyberduck
-brew install fsmonitor
-brew install ghidra # requires java 11+
-# brew install github
-brew install gpg-suite
-brew install insomnia
-brew install maltego
-brew install microsoft-office
-# brew install skype
-# brew install slack
-brew install transmission
-# brew install vagrant
-brew install viscosity
-brew install vmware-fusion
-brew install wireshark
-brew install wireguard-tools
-# brew install virtualbox # Might need to allow access in Security settings
-# brew install virtualbox-extension-pack
-# brew install vlc
-# brew install yed
-# brew install android-platform-tools
-brew install visual-studio-code
-
-# brew install powershell
-# brew install signal
-# brew install zoom
-
-# Browsers
-# brew install google-chrome
-# brew install google-chrome-canary
-# brew install firefox
-# brew install firefoxnightly
-# brew install webkit-nightly
-# brew install chromium
-brew install tor-browser
-brew install brave-browser
-
-#SQLite
-brew install db-browser-for-sqlite
-
-#MySQL
-brew install mysqlworkbench
-
-# MongoDB
-brew tap mongodb/brew
-brew install mongodb-community
-brew install --cask mongodb-compass
-
-#R
-brew install r
-brew install rstudio
-
-# Quicklook
-printf "\n\n${col_yellow}Installing Quicklook plugins${col_reset}"
-brew install qlcolorcode
-brew install qlmarkdown
-brew install quicklook-json
-brew install quicklook-csv
-brew install qlstephen
-brew install qlvideo
-brew install suspicious-package
-brew install qlprettypatch
-brew install WebPQuickLook
-brew install qlswift
-
-# zsh
-printf "\n\n${col_yellow}Installing zsh plugins${col_reset}"
-brew install zsh-autosuggestions
-brew install zsh-completions
-brew install zsh-syntax-highlighting
-brew install romkatv/powerlevel10k/powerlevel10k
-
-# Fonts
-brew tap homebrew/cask-fonts
-brew install font-hack-nerd-font
-brew install font-meslo-nerd-font
+# Automatically capture and execute the brew commands present in this script.
+current_section=""
+grep --color=never -Eo "^### [^#]+ ###|^brew install [^#]+" "$0" | while read -r line; do
+	# Check if the line starts with '###', indicating a section.
+	if [[ $line =~ ^### ]]; then
+		# Format section name.
+		current_section=$(echo "$line" | sed 's/^### //;s/ ###$//')
+		printf "\n\n${col_yellow}$current_section${col_reset}"
+	else
+		# Check if already installed.
+		pkg=$(echo "$line" | awk '{print $3}')
+		if is_installed "$pkg"; then
+			printf "\n ⇒ $line is already installed and up-to-date."
+		else
+			execute "$line"
+		fi
+	fi
+done
 
 # Remove outdated versions from the cellar
-printf "\n\n${col_yellow}Remove outdated versions${col_reset}"
+printf "\n${col_yellow}Remove outdated versions${col_reset}\n"
 brew cleanup
 
-# Gem packages
-#printf "\n\n${col_yellow}Installing Gem packages${col_reset}"
+printf "\n\n${col_yellow}All packages done!${col_reset}\n"
 
-#Node packages
-npm i -g bash-language-server
-npm i -g yo generator-code
+exit 0
+
+# The script ends here, any additional brew install commands should be added below.
+
+### Core utilities ###
+# Install GNU core utilities (those that come with OS X are outdated)
+brew install bash-completion@2 # Bash completion support for shell scripts
+brew install wget              # Network downloader with IRI support
+
+# Install more recent versions of some MacOS tools
+brew install gmp     # GNU Multiple Precision arithmetic library
+brew install grep    # GNU version of grep command (better than macOS's default)
+brew install nano    # Nano editor
+brew install openssh # Modern version of OpenSSH
+brew install screen  # Terminal multiplexer
+brew install vim     # Enhanced version of VIM editor
+
+# Install other useful binaries
+brew install aria2
+brew install bat                 # "cat" command with syntax highlighting
+brew install ffmpeg              # Toolkit to handle multimedia data
+brew install fzf                 # Command-line fuzzy finder
+brew install ghostscript         # Suite of tools and libraries to work with PostScript
+brew install git                 # Distributed version control system
+brew install git-lfs             # Extension for Git to handle large files
+brew install gnupg               # GNU Privacy Guard
+brew install httpie              # User-friendly cURL replacement (for HTTP)
+brew install hub                 # GitHub CLI tool
+brew install jq                  # Lightweight and flexible command-line JSON processor
+brew install lsd                 # Modern replacement for 'ls'
+brew install ncdu                # Disk usage viewer with an ncurses interface
+brew install node                # JavaScript runtime
+brew install p7zip               # Command line 7-Zip tool
+brew install pandoc              # Conversion between different markup formats
+brew install pidcat              # Colored logcat output for Android
+brew install pigz                # Parallel implementation of gzip for modern multi-core machines
+brew install pipeviewer          # Tool to monitor data's progress through a pipeline
+brew install poppler             # PDF rendering library
+brew install rename              # File renamer
+brew install ripgrep-all         # Like ripgrep, but supports ALL the file types
+brew install shfmt               # Shell script formatter
+brew install terminal-notifier   # Sends macOS User Notifications from the command-line
+brew install tesseract           # Optical character recognition engine
+brew install the_silver_searcher # Code-search tool similar to Ack
+brew install tree                # Display directories and files in a tree structure
+brew install vbindiff            # Visual binary diffing utility
+brew install zlib                # Compression library for in-memory compression and decompression
+brew install zopfli              # Compression algorithm
+
+###  Multimedia tools ###
+brew install ffmpeg      # Toolkit for processing video, audio, and other multimedia files
+brew install imagemagick # Software suite to create, edit, and compose bitmap images
+brew install Soundflower # MacOS system extension for passing audio between applications, used to record internal sound https://github.com/mattingalls/Soundflower/releases/tag/2.0b2
+
+### CTF and Forensics tools ###
+# Install Java first to prevent packages that depends on it from failing
+brew install adoptopenjdk # Prebuilt OpenJDK binaries
+
+# CTF tools;
+brew install aircrack-ng # Suite of tools to assess WiFi network security
+brew install binutils    # Collection of binary tools
+brew install binwalk     # Analyzes and extracts firmware binaries
+brew install burp-suite  # Web vulnerability scanner
+brew install cifer       # Automated cryptanalysis tools
+brew install clamav      # Antivirus software suite
+brew install dex2jar     # Tools to work with Android .dex and Java .class files
+brew install dns2tcp     # DNS tunneling tool
+brew install fcrackzip   # Zip password cracker
+brew install foremost    # Forensic program to recover lost files
+brew install hashcat     # Advanced CPU-based password recovery utility
+brew install hashpump    # Exploit hash length extension vulnerabilities
+brew install hydra       # Parallelized login cracker
+brew install john        # John the Ripper password cracker
+brew install knock       # Port-knock server
+brew install netpbm      # Image manipulation
+brew install nmap        # Network exploration tool and security/port scanner
+brew install pngcheck    # PNG file format verifier
+brew install socat       # Multipurpose relay
+brew install sqlmap      # Automated SQL injection tool
+brew install tcpflow     # TCP flow recorder
+brew install tcpreplay   # TCP dump file replay utility
+brew install tcptrace    # Tool for analyzing tcpdump output
+brew install ucspi-tcp   # Tools for building TCP client-server applications
+brew install xpdf        # PDF viewer
+brew install xz          # Compression and decompression tool
+brew install yara        # Malware identification and classification tool
+brew install zenmap      # Nmap GUI
+
+# Reversing tools
+brew install ghidra    # Software reverse engineering framework
+brew install jd-gui    # Standalone Java Decompiler GUI
+brew install machoview # Visual Mach-O file browser
+
+# Forensic tools
+brew install autopsy    # Digital forensics platform
+brew install dc3dd      # Patched version of dd for forensics and security
+brew install volatility # Memory forensics analysis platform
+
+# Wireless tools
+brew install --HEAD kismet-git # Kismet latest development version
+brew tap kismetwireless/kismet # Kismet repository for wireless network discovery, packet sniffing, etc.
+
+### Apps ###
+# Multimedia software
+#brew install adobe-acrobat-reader # Software to view, print, and annotate PDF documents
+brew install adobe-creative-cloud # Suite of creative and multimedia products from Adobe
+brew install gimp                 # GNU Image Manipulation Program
+brew install vlc                  # Multimedia player and framework
+
+#Productivity software
+brew install microsoft-office # Suite of Microsoft productivity software
+brew install obsidian         # Knowledge base that works on top of a local folder of plain text markdown files
+
+# Utilities
+brew install --cask dupeguru # Find and delete duplicate files
+brew install --cask iterm2   # Replacement for MacOS Terminal
+brew install betterzip       # Archive utility with macOS integration
+brew install cyberduck       # FTP and S3 browser
+brew install easyfind        # File, folder, and contents search tool
+brew install fsmonitor       # Monitors files and applications' activity
+brew install gpg-suite       # Suite of tools for encrypted email and file encryption
+brew install insomnia        # REST client for API exploration and debugging
+brew install meld            # Visual diff and merge tool
+
+# Virtualization
+brew install docker                     # Platform for developing, shipping, and running applications in containers
+brew install homebrew/cask/transmission # Fast and lightweight BitTorrent client
+#brew install vagrant                    # Tool for building and distributing virtualized development environments
+brew install vmware-fusion # Desktop virtualization for macOS
+
+# Network
+#brew install virtualbox                # Open-source software for virtualizing the x86 computing architecture
+#brew install virtualbox-extension-pack # Additional features for VirtualBox, like USB 2.0 and 3.0 device support
+#brew install viscosity                 # OpenVPN client and VPN server software (discontinued by user)
+brew install wireguard-tools # Tools for the WireGuard VPN protocol
+brew install wireshark       # Network protocol analyzer
+
+# Visualization
+brew install maltego # Visualization tool for link analysis
+brew install yed     # Graph editor
+
+# Coding
+#brew install android-platform-tools # Essential tools for Android development including adb and fastboot
+brew install powershell         # Cross-platform automation and configuration tool/framework
+brew install visual-studio-code # Code editor
+
+# For fun
+brew install epic-games # Gaming platform and store
+brew install gog-galaxy # Gaming platform and store
+brew install origin     # Gaming platform and store by Electronic Arts
+brew install steam      # Digital distribution platform
+
+# Chat clients
+brew install discord # All-in-one voice and text chat for gamers
+#brew install signal   # Private messaging app with end-to-end encryption
+#brew install skype    # Voice-over-IP service and instant messaging client
+#brew install slack    # Team collaboration and communication software
+#brew install telegram # Cloud-based mobile and desktop messaging app with a focus on security
+#brew install zoom     # Video conferencing, web conferencing, and webinar software
+
+# webbrowsers
+#brew install brave-browser        # Fast, privacy-centric web browser with built-in ad-blocker
+#brew install chromium             # Open-source web browser project that Google Chrome draws its source code from
+#brew install firefox              # Free and open-source web browser
+#brew install firefoxnightly       # Development version of the Firefox browser
+#brew install google-chrome        # Fast, secure, and free web browser by Google
+#brew install google-chrome-canary # Unstable development version of Chrome
+brew install tor-browser # Browser with focus on user privacy and anonymity
+#brew install webkit-nightly       # Latest build of the WebKit rendering engine
+
+# Hammerspoon
+brew install --cask hammerspoon # Lua scripted desktop automation tool for macOS
+
+# Databases
+brew install db-browser-for-sqlite # Database browser for SQLite
+brew install mongodb-community     # High-performance, schema-free document-oriented database
+brew install mongodb-compass       # GUI for MongoDB
+brew install mysqlworkbench        # Database design, administration and development tool for MySQL
+brew tap mongodb/brew              # Official MongoDB tap
+
+# R
+brew install r       # Programming language and software environment for statistical computing
+brew install rstudio # IDE for R
+
+### Quicklook ###
+brew install qlcolorcode        # Syntax highlighting for source code files
+brew install qlmarkdown         # QuickLook generator for Markdown files
+brew install qlprettypatch      # Preview source code patches with color
+brew install qlstephen          # Preview plain text files without a file extension
+brew install qlswift            # QuickLook for Swift files
+brew install qlvideo            # Preview most types of video files
+brew install quicklook-csv      # QuickLook for CSV files
+brew install quicklook-json     # QuickLook for JSON files
+brew install suspicious-package # QuickLook plugin for macOS installer packages
+brew install WebPQuickLook      # QuickLook for WebP images
+
+### ZSH plugins ###
+brew install zsh-autosuggestions     # Suggests commands as you type based on history and completions
+brew install zsh-completions         # Additional completion definitions for Zsh
+brew install zsh-syntax-highlighting # Highlights commands whilst they are typed at a zsh prompt
+
+### Fonts ###
+brew tap homebrew/cask-fonts      # Tap for a collection of Cask-driven fonts
+brew install font-hack-nerd-font  # A typeface designed for source code with a high number of glyphs and ligatures
+brew install font-meslo-nerd-font # A patched font version of Meslo for Powerlevel10k

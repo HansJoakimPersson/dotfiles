@@ -3,34 +3,47 @@
 # top-most EditorConfig file
 root = true
 
-# Unix-style newlines with a newline ending every file
+# --- General Settings for All Files ------------------------------------------
+
 [*]
-end_of_line = lf
-insert_final_newline = true
 
-# Matches multiple files with brace expansion notation
-# Set default charset
-[*.{js,py}]
-charset = utf-8
+end_of_line = lf                # Unix-style newlines
+insert_final_newline = true     # Ensure a newline at the end of the file
+charset = utf-8                 # Set default charset
+trim_trailing_whitespace = true # Remove trailing whitespace
 
-# 4 space indentation
+# --- Language Specific Settings ----------------------------------------------
+
+# Python files
 [*.py]
 indent_style = tab
 indent_size = 4
 
-# Tab indentation (no size specified)
+# Makefile (Tabs are essential here)
 [Makefile]
 indent_style = tab
 
-# Indentation override for all JS under lib directory
+# JavaScript under lib directory
 [lib/**.js]
 indent_style = space
 indent_size = 2
 
-# Matches the exact files either package.json or .travis.yml
-[{package.json,.travis.yml}]
+# Markdown files often don't want trailing whitespaces to be trimmed
+# (two spaces at the end of a line create a line break in markdown)
+[*.md]
+trim_trailing_whitespace = false
+
+# CSS files
+[*.css]
 indent_style = space
 indent_size = 2
 
-# Remove trailing whitespace
-trim_trailing_whitespace = true
+# HTML files
+[*.html]
+indent_style = space
+indent_size = 2
+
+# Special cases: package.json and .travis.yml
+[{package.json,.travis.yml}]
+indent_style = space
+indent_size = 2
