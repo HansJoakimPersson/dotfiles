@@ -213,7 +213,7 @@ brew tap kismetwireless/kismet # Kismet repository for wireless network discover
 
 ### Apps ###
 # Multimedia software
-#brew install adobe-acrobat-reader # Software to view, print, and annotate PDF documents
+brew install adobe-acrobat-reader # Software to view, print, and annotate PDF documents
 brew install adobe-creative-cloud # Suite of creative and multimedia products from Adobe
 brew install gimp                 # GNU Image Manipulation Program
 brew install vlc                  # Multimedia player and framework
@@ -221,6 +221,7 @@ brew install vlc                  # Multimedia player and framework
 #Productivity software
 brew install microsoft-office # Suite of Microsoft productivity software
 brew install obsidian         # Knowledge base that works on top of a local folder of plain text markdown files
+brew install --cask Zettlr
 
 # Utilities
 brew install --cask dupeguru # Find and delete duplicate files
@@ -313,4 +314,5 @@ brew install zsh-syntax-highlighting # Highlights commands whilst they are typed
 ### Fonts ###
 brew tap homebrew/cask-fonts      # Tap for a collection of Cask-driven fonts
 brew install font-hack-nerd-font  # A typeface designed for source code with a high number of glyphs and ligatures
-brew install font-meslo-nerd-font # A patched font version of Meslo for Powerlevel10k
+#brew install font-meslo-nerd-font # A patched font version of Meslo for Powerlevel10k
+brew install font-fira-code
