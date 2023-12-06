@@ -159,6 +159,33 @@ fs() {
 	fi
 }
 
+# List directories that are empty or contain only a .DS_Store file
+# Usage: list_almost_empty_dirs
+list_almost_empty_dirs() {
+  find . -type d -exec sh -c '
+    for dir do
+      if [ "$(ls -A "$dir" | grep -v "^\.\?DS_Store$")" = "" ]; then
+        echo "$dir"
+      fi
+    done' sh {} +
+}
+
+# Remove directories that are empty or contain only a .DS_Store file
+# This function works recursively, starting from the innermost directory
+# Usage: remove_almost_empty_dirs
+remove_almost_empty_dirs() {
+  find . -depth -type d -exec sh -c '
+    for dir do
+      if [ "$(ls -A "$dir" | grep -v "^\.\?DS_Store$")" = "" ]; then
+        if [ -f "$dir/.DS_Store" ]; then
+          rm "$dir/.DS_Store"
+        fi
+        echo "Removing: $dir"
+        rmdir "$dir"
+      fi
+    done' sh {} +
+}
+
 # ---[ 3. SEARCHING ------------------------------------------------------------
 
 # Finds a file under the current directory with an exact name match.
