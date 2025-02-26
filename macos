@@ -1,76 +1,35 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2059
+# shellcheck disable=SC2317,SC2059,SC2294,SC2155
 
-# Thanks to Mathias Bynens!
-# ~/.macos — https://mths.be/macos
+#--- [ STRICT MODE ] -----------------------------------------------------------
 
-###############################################################################
-# Strict Mode
-###############################################################################
-# Set strict mode -  via http://redsymbol.net/articles/unofficial-bash-strict-mode/
-# Return value of a pipeline is the value of the last (rightmost) command to
-# exit with a non-zero status, or zero if all commands in the pipeline exit
-# successfully.
+# Set strict mode for safer script execution.
+set -o errexit  # Exit on command error.
+set -o errtrace # Trap errors in functions and sub-shells.
+set -o nounset  # Exit on uninitialized variables.
+set -o pipefail # Use the error status of the first failed command in a pipeline.
 
-# Print a helpful message if a pipeline with non-zero exit code causes the
-# script to exit as described above.
-#trap 'echo "Aborting due to errexit on line $LINENO. Exit code: $?" >&2' ERR
-
-# Exit immediately if a pipeline returns non-zero.
-# Append "|| true" if you expect an error.
-set -o errexit
-# Allow the above trap be inherited by all functions in the script.
-# Exit on error inside any functions or subshells.
-set -o errtrace
-# Do not allow use of undefined vars. Use ${VAR:-} to use an undefined VAR
-set -o nounset
-# Return value of a pipeline is the value of the last (rightmost) command to
-# exit with a non-zero status, or zero if all commands in the pipeline exit
-# successfully.
-set -o pipefail
-# Turn on traces, useful while debugging but commented out by default
-#set -o xtrace
-
-# Set $IFS to only newline and tab.
-#
-# http://www.dwheeler.com/essays/filenames-in-shell.html
+# Set Internal Field Separator to newline and tab to handle file names with spaces properly.
 IFS=$'\n\t'
 
-###############################################################################
-# Globals
-###############################################################################
-# Reset
-readonly col_reset="\x1b[0m" # Text Reset
+#--- [ GLOBALS ] ---------------------------------------------------------------
 
-# Foreground color
-readonly col_red="\x1b[31m"
-readonly col_green="\x1b[32m"
-readonly col_yellow="\x1b[33m"
+readonly col_reset="\x1b[0m"   # Text Reset
+readonly col_green="\x1b[32m"  # Green
+readonly col_yellow="\x1b[33m" # Yellow
+readonly col_red="\x1b[31m"    # Red
+readonly char_succ="✔"         # Success character
+readonly char_fail="✖"         # Failure character
 
+error() { printf "${col_red}${char_fail}${col_reset}";} # Function to display an error.
+ok() {	printf "${col_green}${char_succ}${col_reset}";} # Function to display a success message.
 
-# Special characters
-readonly char_succ="✔"
-readonly char_fail="✖"
-
-error() {
-	printf "${col_red}${char_fail}${col_reset}"
-}
-
-ok() {
-	printf "${col_green}${char_succ}${col_reset}"
-}
-###############################################################################
-# Main script
-###############################################################################
+#--- [ MAIN SCRIPT ] -----------------------------------------------------------
 # Ask for the administrator password upfront
 sudo -v
 
 # Keep-alive: update existing `sudo` time stamp until `.macos` has finished
-while true; do
-	sudo -n true
-	sleep 60
-	kill -0 "$$" || exit
-done 2>/dev/null &
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # If we're using APFS, make a snapshot before doing anything.
  if    [[ -n "$(  mount | grep '/ (apfs')" ]]; then
@@ -83,14 +42,40 @@ done 2>/dev/null &
 printf "closing any system preferences to prevent issues with automated changes "
 osascript -e 'tell application "System Preferences" to quit'
 ok
+################################################################################
+# System preferences -> Wifi                                                   #
+################################################################################
 
-###############################################################################
-# System preferences -> General                                               #
-###############################################################################
+################################################################################
+# System preferences -> Bluetooth                                              #
+################################################################################
 
-#TODO: Appearance
-#sudo defaults write -g AppleInterfaceStyle -string "Dark"
-#sudo defaults write -g AppleInterfaceStyleSwitchesAutomatically -int 1
+################################################################################
+# System preferences -> Network                                                #
+################################################################################
+
+################################################################################
+# System preferences -> Notifications                                          #
+################################################################################
+
+################################################################################
+# System preferences -> Sound                                                  #
+################################################################################
+
+# Increase sound quality for Bluetooth headphones/headsets
+defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 40
+
+################################################################################
+# System preferences -> Focus                                                  #
+################################################################################
+
+################################################################################
+# System preferences -> General                                                #
+################################################################################
+
+################################################################################
+# System preferences -> Appearance                                             #
+################################################################################
 
 # Accent colour
 sudo defaults write -g AppleAccentColor -int -1 #Graphite
@@ -98,8 +83,7 @@ sudo defaults write -g AppleAccentColor -int -1 #Graphite
 # Highlight colour
 sudo defaults write -g AppleHighlightColor -string "0.847059 0.847059 0.862745 Graphite"
 
-# Sidebar icon size
-# Possible values: 1=small, 2=medium, 3=large
+# Sidebar icon size, possible values: 1=small, 2=medium, 3=large
 sudo defaults write -g NSTableViewDefaultSizeMode -int 2
 
 # Automatically show and hide menu bar
@@ -144,7 +128,7 @@ sudo defaults write -g AppleFontSmoothing -int 2
 #TODO
 for domain in ~/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
    sudo defaults write "${domain}" dontAutoLoad -array \
-      "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" \
+      "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" 
       #"/System/Library/CoreServices/Menu Extras/Volume.menu" \
       #"/System/Library/CoreServices/Menu Extras/User.menu"
 done
@@ -207,7 +191,7 @@ defaults write com.apple.dock autohide -int 0
 #defaults write com.apple.dock autohide-delay -float 0
 
 # Remove the animation when hiding/showing the Dock
-#defaults write com.apple.dock autohide-time-modifier -float 0
+#defaults write com.apple.dock autohide-time-modifier -float 0.4
 
 #Show indicators for open applications
 defaults write com.apple.dock show-process-indicators -bool true
@@ -317,7 +301,7 @@ sudo defaults write com.apple.screensaver askForPassword -int 1
 sudo defaults write com.apple.screensaver askForPasswordDelay -int 0
 
 #Show a message when the screen is locked
-sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText -string "Thanks for finding my MacBook! Please call +46 (0) 76-279 68 08"
+sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "Thanks for finding my MacBook! Please call +46 (0) 76-279 68 08"
 
 # Turn On Firewall 
 sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on > /dev/null 2>&1
@@ -357,21 +341,6 @@ sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist Schedule
 
 # Allow the App Store to reboot machine on macOS updates
 sudo defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired -bool true
-
-###############################################################################
-# System preferences -> Network                                       #
-###############################################################################
-
-###############################################################################
-# System preferences -> Bluetooth                                       #
-###############################################################################
-
-###############################################################################
-# System preferences -> Sound                                                 #
-###############################################################################
-
-# Increase sound quality for Bluetooth headphones/headsets
-sudo defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 40
 
 ###############################################################################
 # System preferences -> Keyboard                                              #
@@ -455,6 +424,15 @@ sudo defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
 # Disable local Time Machine backups
 #hash tmutil &> /dev/null && sudo tmutil disablelocal
+
+###############################################################################
+# Launchpad                                                                      #
+###############################################################################
+
+#Change the number of columns and rows on the launchpad grid.
+defaults write com.apple.dock springboard-columns -int 12
+defaults write com.apple.dock springboard-rows -int 10
+defaults write com.apple.dock ResetLaunchPad -bool TRUE
 
 ###############################################################################
 # Finder                                                                      #
@@ -738,6 +716,9 @@ sudo defaults write com.apple.mail DisableInlineAttachmentViewing -bool true
 
 # Disable automatic spell checking
 sudo defaults write com.apple.mail SpellCheckingBehavior -string 'NoSpellCheckingEnabled'
+
+# Send Windows friendly attachments:
+sudo defaults write com.apple.mail SendWindowsFriendlyAttachments -boolean TRUE
 
 ###############################################################################
 # Spotlight                                                                   #
