@@ -86,13 +86,25 @@ if [ -f "$FILE" ]; then
   source "$FILE"
 fi
 
-# ---[ FZF Setup ]-------------------------------------------------------
+# ---[ FZF ]--------------------------------------------------------------------
+# This section is dedicated to setting up fzf (a command-line fuzzy finder)
+# For more information on fzf, see: https://github.com/junegunn/fzf
+
+# Check if fzf command is available on the system
 if command -v fzf >/dev/null 2>&1; then
+
+  # Determine the parent directory of where fzf binary is located
   FZF_PATH=$(dirname "$(dirname "$(command -v fzf)")")
+
+  # Add the 'bin' directory of FZF_PATH to the PATH variable, if it's not already there
   if [[ ! "$PATH" == *${FZF_PATH}/bin* ]]; then
     PATH="${PATH:+${PATH}:}/${FZF_PATH}/bin"
   fi
-  [[ $- == *i* ]] && source "$(brew --prefix)/opt/fzf/shell/completion.zsh" 2>/dev/null
+
+  # Load fzf auto-completion
+  source "$(brew --prefix)/opt/fzf/shell/completion.zsh" 2>/dev/null
+
+  # Load the fzf key-bindings to enable special keyboard shortcuts for fzf
   source "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
 fi
 
