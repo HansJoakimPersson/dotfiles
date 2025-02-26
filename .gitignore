@@ -4,3 +4,6 @@
 
 ### macOS General ###
 .DS_Store
+
+### VS code .history ###
+.history/
