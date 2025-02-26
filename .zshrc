@@ -1,8 +1,10 @@
 #!/usr/bin/env zsh
 
 # ---[ LOAD DOTFILES ]----------------------------------------------------------
-# Load various configuration files
-for file in ~/.{path,extra,functions,aliases}; do
+# Load the shell dotfiles, and then some:
+# * ~/.exports can be used to extend `$PATH`.
+# * ~/.extra can be used for other settings you don’t want to commit.
+for file in ~/.{exports,extra,functions,aliases}; do
   [ -r "$file" ] && [ -f "$file" ] && source "$file"
 done
 unset file

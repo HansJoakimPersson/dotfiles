@@ -5,7 +5,7 @@
 # Load the shell dotfiles, and then some:
 # * ~/.exports can be used to extend `$PATH`.
 # * ~/.extra can be used for other settings you don’t want to commit.
-for file in ~/.{extra,functions,aliases,bash_prompt,}; do
+for file in ~/.{exports,extra,functions,aliases,bash_prompt,}; do
   [[ -r "$file" && -f "$file" ]] && source "$file"
 done
 unset file
@@ -119,22 +119,3 @@ if command -v fzf >/dev/null 2>&1; then
   # Load the fzf key-bindings to enable special keyboard shortcuts for fzf
   source "$(brew --prefix)/opt/fzf/shell/key-bindings.bash"
 fi
-
-# ---[ NODE ]-------------------------------------------------------------------
-
-export NODE_REPL_HISTORY=~/.node_history # Enable persistent REPL history for `node`.
-export NODE_REPL_HISTORY_SIZE='32768'    # Allow 32³ entries; the default is 1000.
-export NODE_REPL_MODE='sloppy'           # Use sloppy mode by default, matching web browsers.
-
-# ---[ PYTHON ]-----------------------------------------------------------------
-
-# Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
-export PYTHONIOENCODING='UTF-8'
-
-# ---[ HOMEBREW ]---------------------------------------------------------------
-
-# Trying to get the Apps to install in the Apps location
-export HOMEBREW_CASK_OPTS="--appdir=/Applications"
-
-# Avoid issues with `gpg` as installed via Homebrew. # https://stackoverflow.com/a/42265848/96656
-export GPG_TTY=$(tty)
