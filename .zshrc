@@ -30,6 +30,7 @@ setopt MULTIOS              # Multiple I/O streams for one command
 setopt NO_BEEP              # Prevents terminal beep on errors
 setopt CLOBBER              # Overwrite files with redirection instead of appending
 setopt INTERACTIVE_COMMENTS # Allows comments in interactive shell with '#'
+setopt NO_CASE_GLOB         # We want globbing to be case-insensitive
 
 # History settings
 setopt APPEND_HISTORY         # Appends commands to the history list
