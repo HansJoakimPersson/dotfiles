@@ -51,7 +51,7 @@ alias icloud="cd ~/Library/Mobile\ Documents/com\~apple\~CloudDocs"
 alias onedrive="cd ~/OneDrive"
 alias downloads="cd ~/Downloads"
 alias desktop="cd ~/Desktop"
-alias projects="cd ~/projects"
+alias projects="cd ~/Library/Mobile\ Documents/com\~apple\~CloudDocs/projects"
 alias vs="open -a 'Visual Studio Code'"
 
 # Always enable colored `grep` output
