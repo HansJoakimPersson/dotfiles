@@ -227,7 +227,8 @@ brew install --cask Zettlr
 
 # Utilities
 brew install --cask dupeguru # Find and delete duplicate files
-brew install --cask iterm2   # Replacement for MacOS Terminal
+brew install --cask keepingyouawake
+#brew install --cask iterm2   # Replacement for MacOS Terminal
 brew install betterzip       # Archive utility with macOS integration
 brew install cyberduck       # FTP and S3 browser
 brew install easyfind        # File, folder, and contents search tool
