@@ -288,10 +288,10 @@ brew install --cask hammerspoon # Lua scripted desktop automation tool for macOS
 
 # Databases
 brew install db-browser-for-sqlite # Database browser for SQLite
-brew install mongodb-community     # High-performance, schema-free document-oriented database
-brew install mongodb-compass       # GUI for MongoDB
-brew install mysqlworkbench        # Database design, administration and development tool for MySQL
-brew tap mongodb/brew              # Official MongoDB tap
+#brew install mongodb-community     # High-performance, schema-free document-oriented database
+#brew install mongodb-compass       # GUI for MongoDB
+#brew install mysqlworkbench        # Database design, administration and development tool for MySQL
+#brew tap mongodb/brew              # Official MongoDB tap
 
 # R
 brew install r       # Programming language and software environment for statistical computing
