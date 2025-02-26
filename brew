@@ -152,6 +152,7 @@ brew install ripgrep-all         # Like ripgrep, but supports ALL the file types
 brew install shfmt               # Shell script formatter
 brew install terminal-notifier   # Sends macOS User Notifications from the command-line
 brew install tesseract           # Optical character recognition engine
+brew install tesseract-lang      # Install additional languages
 brew install the_silver_searcher # Code-search tool similar to Ack
 brew install tree                # Display directories and files in a tree structure
 brew install vbindiff            # Visual binary diffing utility
