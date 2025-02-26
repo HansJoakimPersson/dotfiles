@@ -200,6 +200,7 @@ brew install zenmap      # Nmap GUI
 
 # Reversing tools
 brew install ghidra    # Software reverse engineering framework
+brew install --cask hopper-disassembler
 brew install jd-gui    # Standalone Java Decompiler GUI
 brew install machoview # Visual Mach-O file browser
 
