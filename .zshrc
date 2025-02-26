@@ -108,6 +108,12 @@ if command -v fzf >/dev/null 2>&1; then
   source "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
 fi
 
+# ---[ Docker CLI completions ]-------------------------------------------------
+# The following lines is added by Docker Desktop to enable Docker CLI completions.
+fpath=(~/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+
 # ---[ Git Prompt via vcs_info ]------------------------------------------------
 
 # Autoload zsh add-zsh-hook and vcs_info functions
