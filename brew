@@ -210,8 +210,8 @@ brew install dc3dd      # Patched version of dd for forensics and security
 brew install volatility # Memory forensics analysis platform
 
 # Wireless tools
-brew install --HEAD kismet-git # Kismet latest development version
-brew tap kismetwireless/kismet # Kismet repository for wireless network discovery, packet sniffing, etc.
+#brew install --HEAD kismet-git # Kismet latest development version
+#brew tap kismetwireless/kismet # Kismet repository for wireless network discovery, packet sniffing, etc.
 
 ### Apps ###
 # Multimedia software
