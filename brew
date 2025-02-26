@@ -260,10 +260,10 @@ brew install powershell         # Cross-platform automation and configuration to
 brew install visual-studio-code # Code editor
 
 # For fun
-brew install epic-games # Gaming platform and store
-brew install gog-galaxy # Gaming platform and store
-brew install origin     # Gaming platform and store by Electronic Arts
-brew install steam      # Digital distribution platform
+#brew install epic-games # Gaming platform and store
+#brew install gog-galaxy # Gaming platform and store
+#brew install origin     # Gaming platform and store by Electronic Arts
+#brew install steam      # Digital distribution platform
 
 # Chat clients
 brew install discord # All-in-one voice and text chat for gamers
