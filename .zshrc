@@ -9,7 +9,7 @@ for file in ~/.{exports,extra,functions,aliases}; do
 done
 unset file
 
-# ---[ Prompt ]-----------------------------------------------------------
+# ---[ Prompt ]-----------------------------------------------------------------
 # Primary prompt with git info
 PROMPT='%~$%F{green}${vcs_info_msg_0_}%f=> '
 
@@ -20,7 +20,7 @@ RPROMPT='%F{yellow}→ %f'
 
 # Autocorrect command typos
 export SPROMPT="Correct $fg[red]%R$reset_color to $fg[green]%r$reset_color? [Yes, No, Abort, Edit] "
-setopt CORRECT # Enable more controlled command auto-correction
+setopt CORRECT              # Enable more controlled command auto-correction
 
 # General settings
 setopt AUTO_CD              # Allows changing directories without 'cd'
@@ -52,7 +52,7 @@ HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history # Location of history file
 HISTSIZE=100000                         # Max commands in memory
 SAVEHIST=100000                         # Max commands saved to history file
 
-# ---[ Plugins and Completion System ]-----------------------------------
+# ---[ Plugins and Completion System ]------------------------------------------
 
 # Initialize Zsh's built-in completion system
 autoload -Uz compinit -C && compinit -C
@@ -69,7 +69,7 @@ zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
 zstyle ':completion:*' list-suffixes
 zstyle ':completion:*' expand prefix suffix
 
-# ---[ Autosuggestions ]-------------------------------------------------
+# ---[ Autosuggestions ]--------------------------------------------------------
 # Assumes zsh-autosuggestions plugin is installed
 FILE=/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 if [ -f "$FILE" ]; then
@@ -78,7 +78,7 @@ if [ -f "$FILE" ]; then
   source "$FILE"
 fi
 
-# ---[ Syntax Highlighting ]---------------------------------------------
+# ---[ Syntax Highlighting ]----------------------------------------------------
 # Assumes zsh-syntax-highlighting plugin is installed
 FILE=/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 if [ -f "$FILE" ]; then
