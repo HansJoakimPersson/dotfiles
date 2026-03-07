@@ -9,6 +9,7 @@
 # 6. SYSTEMS OPERATIONS & INFORMATION
 # 7. WEB DEVELOPMENT
 # 8. MAN PAGES
+# 9. OTHER
 
 # Check for MacOS
 is_mac() {
@@ -377,3 +378,108 @@ xmanpage() { open "x-man-page://$1"; }
 # bbman: View man pages in BBEdit.
 # Usage: bbman <command>
 bbman() { MANWIDTH=80 MANPAGER='col -bx' man "$@" | bbedit --clean --view-top -t "man $1"; }
+
+# ---[ 9. OTHER ----------------------------------------------------------------
+
+remove_text_from_pdf() {
+    # Arguments: $1 = input PDF, $2 = text to remove
+    input_pdf=$1
+    text_to_remove=$2
+
+    # Check if PyMuPDF is installed; install if missing
+    if ! python3 -c "import fitz" &> /dev/null; then
+        echo "PyMuPDF is not installed. Installing..."
+        pip3 install --quiet pymupdf
+    fi
+
+    # Create a versioned backup of the input file
+    base_name="${input_pdf%.*}"
+    extension="${input_pdf##*.}"
+    backup_base="${base_name}_backup"
+    counter=1
+    while [ -f "${backup_base}_${counter}.${extension}" ]; do
+        counter=$((counter + 1))
+    done
+    backup_pdf="${backup_base}_${counter}.${extension}"
+    cp "$input_pdf" "$backup_pdf"
+    echo "Backup created: $backup_pdf"
+
+    # Encode the text to remove as Base64 to safely pass it into Python
+    text_b64=$(printf %s "$text_to_remove" | base64)
+
+    # Run embedded Python code (quoted heredoc to prevent shell expansion)
+    TEXT_B64="$text_b64" BACKUP_PDF="$backup_pdf" OUTPUT_PDF="$input_pdf" python3 - <<'PYCODE'
+import fitz, os, base64
+
+# Retrieve environment variables
+backup_pdf = os.environ["BACKUP_PDF"]
+output_pdf = os.environ["OUTPUT_PDF"]
+raw = base64.b64decode(os.environ["TEXT_B64"]).decode("utf-8")
+text_to_remove = raw.encode("utf-8")
+
+print(f"Opening backup file: {backup_pdf}")
+doc = fitz.open(backup_pdf)
+print(f"PDF has {doc.page_count} pages.")
+
+found_any = False
+
+# 1) Replace text directly in each page's content streams
+for page_num in range(doc.page_count):
+    page = doc.load_page(page_num)
+    xrefs = page.get_contents() or []
+    if not isinstance(xrefs, (list, tuple)):
+        xrefs = [xrefs]
+    print(f"Processing page {page_num + 1}/{doc.page_count} with {len(xrefs)} content stream(s).")
+
+    for xref in xrefs:
+        try:
+            stream = doc.xref_stream(xref)
+        except Exception:
+            continue
+        if not stream:
+            continue
+
+        # Debug: show the first bytes of each content stream
+        print(f"Stream head (xref {xref}): {stream[:80]!r}...")
+        if text_to_remove in stream:
+            new_stream = stream.replace(text_to_remove, b"")
+            doc.update_stream(xref, new_stream)
+            print(f"Replaced text in page stream xref {xref}")
+            found_any = True
+
+# 2) Global scan: replace occurrences in all streams (including XObjects, Forms, etc.)
+for xref in range(1, doc.xref_length()):
+    try:
+        if not doc.xref_is_stream(xref):
+            continue
+        stream = doc.xref_stream(xref)
+    except Exception:
+        continue
+    if not stream:
+        continue
+
+    if text_to_remove in stream:
+        new_stream = stream.replace(text_to_remove, b"")
+        doc.update_stream(xref, new_stream)
+        print(f"Replaced text in global stream xref {xref}")
+        found_any = True
+
+# 3) Fallback: use PyMuPDF redactions if no byte-level matches were found
+if not found_any:
+    print("No byte-level matches found; attempting redactions via text search.")
+    for page_num in range(doc.page_count):
+        page = doc.load_page(page_num)
+        rects = page.search_for(raw)
+        if rects:
+            for r in rects:
+                page.add_redact_annot(r, fill=(1, 1, 1))  # white fill for redacted area
+            page.apply_redactions()
+            print(f"Applied redactions on page {page_num + 1}")
+            found_any = True
+
+# 4) Save with full garbage collection to clean up old objects
+doc.save(output_pdf, garbage=4)
+print(f"Saved modified PDF to: {output_pdf}")
+print("Done.")
+PYCODE
+}
