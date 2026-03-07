@@ -19,7 +19,11 @@ export LC_ALL='en_US.UTF-8'
 export TERM=xterm-256color
 
 # Optimize Bash history behavior
-bind Space:magic-space      # Use space to trigger history expansion, e.g., !! <space>
+if [[ $- = *i* ]]
+then
+    bind Space:magic-space      # Use space to trigger history expansion, e.g., !! <space>
+fi
+
 shopt -s histappend cmdhist # Enhance history file and multi-line command handling
 
 # Increase Bash history size. Allow 32³ entries; the default is 500.
