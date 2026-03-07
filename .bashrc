@@ -16,6 +16,8 @@ unset file
 export LANG='en_US.UTF-8'
 export LC_ALL='en_US.UTF-8'
 
+export TERM=xterm-256color
+
 # Optimize Bash history behavior
 bind Space:magic-space      # Use space to trigger history expansion, e.g., !! <space>
 shopt -s histappend cmdhist # Enhance history file and multi-line command handling
