@@ -1,6 +1,9 @@
 # Dotfiles
 
-![Lines of code](https://img.shields.io/tokei/lines/github/HansJoakimPersson/dotfiles)
+[![Lines of code](https://img.shields.io/endpoint?url=https%3A%2F%2Ftokei.kojix2.net%2Fbadge%2Fgithub%2FHansJoakimPersson%2Fdotfiles%2Flines)](https://tokei.kojix2.net/github/HansJoakimPersson/dotfiles)
+[![Top language](https://img.shields.io/endpoint?url=https%3A%2F%2Ftokei.kojix2.net%2Fbadge%2Fgithub%2FHansJoakimPersson%2Fdotfiles%2Flanguage)](https://tokei.kojix2.net/github/HansJoakimPersson/dotfiles)
+[![Languages](https://img.shields.io/endpoint?url=https%3A%2F%2Ftokei.kojix2.net%2Fbadge%2Fgithub%2FHansJoakimPersson%2Fdotfiles%2Flanguages)](https://tokei.kojix2.net/github/HansJoakimPersson/dotfiles)
+[![Code to comment](https://img.shields.io/endpoint?url=https%3A%2F%2Ftokei.kojix2.net%2Fbadge%2Fgithub%2FHansJoakimPersson%2Fdotfiles%2Fratio)](https://tokei.kojix2.net/github/HansJoakimPersson/dotfiles)
 ![GitHub](https://img.shields.io/github/license/HansJoakimPersson/dotfiles)
 [![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
 ![GitHub last commit](https://img.shields.io/github/last-commit/HansJoakimPersson/dotfiles)
