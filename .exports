@@ -19,6 +19,12 @@ export PATH="/opt/homebrew/opt/openjdk@17/bin:${PATH}"
 # Install GUI apps in /Applications.
 export HOMEBREW_CASK_OPTS='--appdir=/Applications'
 
+# Skip automatic Homebrew updates.
+export HOMEBREW_NO_AUTO_UPDATE='1'
+
+# Avoid Homebrew analytics.
+export HOMEBREW_NO_ANALYTICS='1'
+
 # Avoid issues with `gpg` as installed via Homebrew.
 export GPG_TTY="$(tty)"
 
